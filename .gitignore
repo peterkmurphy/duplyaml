@@ -4,6 +4,7 @@
 *.so
 Thumbs.db
 .DS_Store
+.idea
 /MANIFEST
 /.coverage
 /coverage.xml
