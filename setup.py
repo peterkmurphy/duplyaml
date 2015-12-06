@@ -4,9 +4,36 @@
 # Used for setting up and installing duplyaml.
 
 
-from setuptools import setup
+import sys
+try:
+    from setuptools import setup, Extension, Command
+except ImportError:
+    from distutils.core import setup, Extension, Command
 
 import os
+
+# Idea from https://github.com/simplejson/simplejson/blob/master/setup.py
+
+class TestCommand(Command):
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        import sys, subprocess
+        raise SystemExit(
+            subprocess.call([sys.executable,
+                             # Turn on deprecation warnings
+                             '-Wd',
+                             'duplyaml/tests/__init__.py']))
+
+cmdclass = dict(test=TestCommand)
+kw = dict(cmdclass=cmdclass)
+
 
 __location__ = os.path.realpath(
     os.path.join(os.getcwd(), os.path.dirname(__file__)))
@@ -51,5 +78,5 @@ setup(name='duplyaml',
       long_description=readme(),
       keywords='YAML JSON text parsing processing',
       include_package_data=True,
-      #test_suite = 'duplyaml/tests',
-      zip_safe=False)
+      zip_safe=False,
+      **kw)
