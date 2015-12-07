@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+# The duplyaml YAML processor.
+# The duplyaml/tests/__init__.py file.
+# Used to initialise testing.
+
 from __future__ import absolute_import
 import unittest
 import doctest

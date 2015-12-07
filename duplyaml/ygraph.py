@@ -51,6 +51,12 @@ class YAMLNode:
         self.graph = graph
         self.kind = kind
 
+    def __eq__(self, other):
+        return self.tag == other.tag and self.kind == other.kind
+
+    def __repr__(self):
+        return "%s(%r)" % (self.__class__, self.__dict__)
+
 
 class YAMLScalarNode(YAMLNode):
     """ Represents YAML nodes for scalar data: strings, integers, floats, etc. """
@@ -61,6 +67,8 @@ class YAMLScalarNode(YAMLNode):
         YAMLNode.__init__(self, tag, anchor, graph, kind)
         self.canvalue = canvalue
 
+    def __eq__(self, other):
+        return YAMLNode.__eq__(self, other) and self.canvalue == other.canvalue
 
 class YAMLSeqNode(YAMLNode):
     """ Represents YAML nodes for sequences: """
@@ -78,6 +86,8 @@ class YAMLSeqNode(YAMLNode):
         self.nodeseq.append(node)
         node.graph = self.graph
 
+    def __repr__(self):
+        return "%s(%r)" % (self.__class__, dict(self.__dict__).pop("nodeseq"))
 
 class YAMLMapNode(YAMLNode):
     """ Represents YAML nodes for mappings: """
@@ -99,3 +109,12 @@ class YAMLMapNode(YAMLNode):
         nodekey.graph = self.graph
         self.valseq.append(nodeval)
         nodeval.graph = self.graph
+
+    def __repr__(self):
+        return "%s(%r)" % (self.__class__,
+            {key: self.__dict__[key] for key in self.__dict__ if key not in ["keyseq", "valueseq"]})
+
+
+
+
+
