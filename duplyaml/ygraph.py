@@ -54,6 +54,9 @@ class YAMLNode:
     def __eq__(self, other):
         return self.tag == other.tag and self.kind == other.kind
 
+    def checkeq(self, other, dchecks={}):
+        return YAMLNode.__eq__(self, other)
+
     def __repr__(self):
         return "%s(%r)" % (self.__class__, self.__dict__)
 
@@ -69,6 +72,7 @@ class YAMLScalarNode(YAMLNode):
 
     def __eq__(self, other):
         return YAMLNode.__eq__(self, other) and self.canvalue == other.canvalue
+
 
 class YAMLSeqNode(YAMLNode):
     """ Represents YAML nodes for sequences: """
@@ -86,8 +90,31 @@ class YAMLSeqNode(YAMLNode):
         self.nodeseq.append(node)
         node.graph = self.graph
 
+    def checkeq(self, other, dchecks={}):
+        idtuple = (id(self), id(other),)
+        if idtuple in dchecks:
+            return True
+        dchecks[idtuple] = False
+        if not YAMLNode.__eq__(self, other):
+            dchecks[idtuple] = True
+            return False
+        selflen = len(self.nodeseq)
+        if selflen != len(other.nodeseq):
+            dchecks[idtuple] = True
+            return False
+        for i in range(selflen):
+            if not (self.nodeseq[i].checkeq(other.nodeseq[i], dchecks)):
+                dchecks[idtuple] = True
+                return False
+        dchecks[idtuple] = True
+        return True
+
+    def __eq__(self, other):
+        return self.checkeq(other, {})
+
     def __repr__(self):
         return "%s(%r)" % (self.__class__, dict(self.__dict__).pop("nodeseq"))
+
 
 class YAMLMapNode(YAMLNode):
     """ Represents YAML nodes for mappings: """
@@ -109,6 +136,34 @@ class YAMLMapNode(YAMLNode):
         nodekey.graph = self.graph
         self.valseq.append(nodeval)
         nodeval.graph = self.graph
+
+
+    def checkeq(self, other, dchecks={}):
+        idtuple = (id(self), id(other),)
+        if (idtuple) in dchecks:
+            return True
+        dchecks[idtuple] = False
+        if not YAMLNode.__eq__(self, other):
+            dchecks[idtuple] = True
+            return False
+        selflen = len(self.keyseq)
+        if selflen != len(other.keyseq):
+            dchecks[idtuple] = True
+            return False
+        for i in range(selflen):
+            if not (self.keyseq[i].checkeq(other.keyseq[i], dchecks)):
+                dchecks[idtuple] = True
+                return False
+        for i in range(selflen):
+            if not (self.valseq[i].checkeq(other.valseq[i], dchecks)):
+                dchecks[idtuple] = True
+                return False
+        dchecks[idtuple] = True
+        return True
+
+    def __eq__(self, other):
+        return self.checkeq(other, {})
+
 
     def __repr__(self):
         return "%s(%r)" % (self.__class__,
