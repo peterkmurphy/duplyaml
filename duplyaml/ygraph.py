@@ -51,14 +51,20 @@ class YAMLNode:
         self.graph = graph
         self.kind = kind
 
+    def checkeq(self, other, dchecks):
+        return self.kind == other.kind and self.tag == other.tag
+
     def __eq__(self, other):
         return self.tag == other.tag and self.kind == other.kind
 
-    def checkeq(self, other, dchecks={}):
-        return YAMLNode.__eq__(self, other)
+    def checkeq(self, other, dchecks):
+        return self.__eq__(other)
 
     def __repr__(self):
         return "%s(%r)" % (self.__class__, self.__dict__)
+
+    def __ne__(self, other):
+        return not self == other
 
 
 class YAMLScalarNode(YAMLNode):
@@ -90,7 +96,7 @@ class YAMLSeqNode(YAMLNode):
         self.nodeseq.append(node)
         node.graph = self.graph
 
-    def checkeq(self, other, dchecks={}):
+    def checkeq(self, other, dchecks):
         idtuple = (id(self), id(other),)
         if idtuple in dchecks:
             return True
@@ -138,7 +144,7 @@ class YAMLMapNode(YAMLNode):
         nodeval.graph = self.graph
 
 
-    def checkeq(self, other, dchecks={}):
+    def checkeq(self, other, dchecks):
         idtuple = (id(self), id(other),)
         if (idtuple) in dchecks:
             return True
