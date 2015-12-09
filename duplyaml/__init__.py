@@ -5,3 +5,4 @@
 # package.
 
 from .ygraph import YAMLNode, YAMLScalarNode, YAMLSeqNode, YAMLMapNode, YAMLGraph
+from .yrepresent import YAMLRepresenter

@@ -55,26 +55,27 @@ class YAMLRepresenter:
         return graphout
 
     def createnode(self, item):
-        if item.id in self.idmap:
-            return self.idmap[item.id]
         if item is None:
             return YAMLScalarNode("~", TAG_NULL)
-        if item == True:
-            return YAMLScalarNode("y", TAG_BOOL)
-        if item == False:
-            return YAMLScalarNode("n", TAG_BOOL)
+        if isinstance(item, bool):
+            if item == True:
+                return YAMLScalarNode("y", TAG_BOOL)
+            if item == False:
+                return YAMLScalarNode("n", TAG_BOOL)
         if isinstance(item, basestring):
             return YAMLScalarNode(item, TAG_STR)
         if isinstance(item, numbers.Integral):
             return YAMLScalarNode(str(item), TAG_INT)
-        if isinstance(item, numbers.Rational):
-            return YAMLScalarNode(str(item), TAG_FRACTION)
-        if isinstance(item, numbers.Complex):
-            return YAMLScalarNode(str(item), TAG_COMPLEX)
+#        if isinstance(item, numbers.Rational):
+#            return YAMLScalarNode(str(item), TAG_FRACTION)
+#        if isinstance(item, numbers.Complex):
+#            return YAMLScalarNode(str(item), TAG_COMPLEX)
+
         if isinstance(item, numbers.Number):
             return YAMLScalarNode(str(item), TAG_FLOAT)
         if isinstance(item, (bytes, bytearray,)):
             return YAMLScalarNode(base64.b64encode(item), TAG_BINARY)
-
+        if item.id in self.idmap:
+            return self.idmap[item.id]
 
 
