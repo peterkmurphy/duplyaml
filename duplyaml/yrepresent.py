@@ -7,31 +7,8 @@
 import numbers
 import base64
 
+from .yconst import *
 from .ygraph import YAMLNode, YAMLScalarNode, YAMLSeqNode, YAMLMapNode, YAMLGraph
-
-# Tag constants
-
-TAG_MAP = "!!map" # Unordered set of key: value pairs without duplicates.
-TAG_OMAP = "!!omap" # Ordered sequence of key: value pairs without duplicates.
-TAG_PAIRS = "!!pairs" # Ordered sequence of key: value pairs allowing duplicates.
-TAG_SET = "!!set" # Unordered set of non-equal values.
-TAG_SEQ = "!!seq" # Sequence of arbitrary values.
-TAG_BINARY = "!!binary" # A sequence of zero or more octets (8 bit values).
-TAG_BOOL = "!!bool" # Mathematical Booleans.
-TAG_FLOAT = "!!float" # Floating-point approximation to real numbers.
-TAG_INT = "!!int" # Mathematical integers.
-TAG_MERGE = "!!merge" # Specify one or more mappings to be merged with the current one.
-TAG_NULL = "!!null" # Devoid of value.
-TAG_STR = "!!str" # A sequence of zero or more Unicode characters.
-TAG_TIMESTAMP = "!!timestamp" # A point in time.
-TAG_VALUE = "!!value" # Specify the default value of a mapping.
-TAG_YAML = "!!yaml" # Keys for encoding YAML in YAML.
-
-# Extra ones that seems to be of use:
-
-TAG_COMPLEX = "!!complex" # Represents complex numbers of form a+bj
-TAG_FRACTION = "!!fraction" # Represents complex numbers of form a+bj
-TAG_TIMEDELTA = "!!timedelta" # Represents time intervals
 
 # Nice hack for Python 2 and 3, based on:
 
@@ -51,17 +28,17 @@ class YAMLRepresenter:
         self.idmap = {}
         graphout = YAMLGraph(self)
         for item in graphdata:
-            graphout.add_doc(self.createnode(item))
+            graphout.add_doc(self.createnode(item), self.idmap)
         return graphout
 
-    def createnode(self, item):
+    def createnode(self, item, theidmap = {}):
         if item is None:
-            return YAMLScalarNode("~", TAG_NULL)
+            return YAMLScalarNode(CAN_NULL, TAG_NULL)
         if isinstance(item, bool):
             if item == True:
-                return YAMLScalarNode("y", TAG_BOOL)
+                return YAMLScalarNode(CAN_TRUE, TAG_BOOL)
             if item == False:
-                return YAMLScalarNode("n", TAG_BOOL)
+                return YAMLScalarNode(CAN_FALSE, TAG_BOOL)
         if isinstance(item, basestring):
             return YAMLScalarNode(item, TAG_STR)
         if isinstance(item, numbers.Integral):

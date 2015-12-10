@@ -3,9 +3,9 @@ from unittest import TestCase
 from duplyaml import *
 
 testscalars = [None, False, True, "", 0, 0.0]
-testresults = [YAMLScalarNode("~", "!!null"),
-    YAMLScalarNode("n", "!!bool"),
-    YAMLScalarNode("y", "!!bool"),
+testresults = [YAMLScalarNode(CAN_NULL, "!!null"),
+    YAMLScalarNode(CAN_FALSE, "!!bool"),
+    YAMLScalarNode(CAN_TRUE, "!!bool"),
     YAMLScalarNode("", "!!str"),
     YAMLScalarNode("0", "!!int"),
     YAMLScalarNode("0.0", "!!float"),

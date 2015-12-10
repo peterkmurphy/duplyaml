@@ -3,14 +3,7 @@
 # The duplyaml/ygraph.py file.
 # Represents the YAML Representation Graph.
 
-
-# These are the constants used to define the Node kinds used with YAML nodes
-
-YAMLNODE_DEF = 0 # Used with the YAMLNode class by default.
-YAMLNODE_SCA = 1 # Used with scalar nodes.
-YAMLNODE_SEQ = 2 # Used with sequence nodes.
-YAMLNODE_MAP = 3 # Used with mapping nodes.
-
+from .yconst import *
 
 # The yappystgraph represents a YAML stream: "a sequence of disjoint directed graphs, each with a root node."
 # We treat this object differently from normal nodes.
@@ -39,15 +32,13 @@ class YAMLGraph:
 class YAMLNode:
     """ Represents a node in a YAML document. """
 
-    def __init__(self, tag, anchor=None, graph=None, kind=YAMLNODE_DEF):
+    def __init__(self, tag, graph=None, kind=YAMLNODE_DEF):
         """ Initialises a new YAML node
         :param tag: Indicates the types of data - string, integer, etc.
-        :param anchor: Indicates the anchor used for the node, if any.
         :param graph: Indicates the YAML representation graph containing it, if any.
         :param kind: The kind - scalar, sequence or mapping.
         """
         self.tag = tag
-        self.anchor = anchor
         self.graph = graph
         self.kind = kind
 
@@ -69,11 +60,11 @@ class YAMLNode:
 
 class YAMLScalarNode(YAMLNode):
     """ Represents YAML nodes for scalar data: strings, integers, floats, etc. """
-    def __init__(self, canvalue, tag, anchor=None, graph=None, kind=YAMLNODE_SCA):
+    def __init__(self, canvalue, tag, graph=None, kind=YAMLNODE_SCA):
         """ Initialise a new YAML scalar node
         :param canvalue: This is the canonical value (and should be a string).
         """
-        YAMLNode.__init__(self, tag, anchor, graph, kind)
+        YAMLNode.__init__(self, tag, graph, kind)
         self.canvalue = canvalue
 
     def __eq__(self, other):
@@ -82,11 +73,11 @@ class YAMLScalarNode(YAMLNode):
 
 class YAMLSeqNode(YAMLNode):
     """ Represents YAML nodes for sequences: """
-    def __init__(self, nodeseq, tag, anchor=None, graph=None, kind=YAMLNODE_SEQ):
+    def __init__(self, nodeseq, tag, graph=None, kind=YAMLNODE_SEQ):
         """ Initialise a new YAML sequence node
         :param nodeseq: A sequence of nodes).
         """
-        YAMLNode.__init__(self, tag, anchor, graph, kind)
+        YAMLNode.__init__(self, tag, graph, kind)
         self.nodeseq = nodeseq
 
     def addnode(self, node):
@@ -124,12 +115,12 @@ class YAMLSeqNode(YAMLNode):
 
 class YAMLMapNode(YAMLNode):
     """ Represents YAML nodes for mappings: """
-    def __init__(self, keyseq, valseq, tag, anchor=None, graph=None, kind=YAMLNODE_MAP):
+    def __init__(self, keyseq, valseq, tag, graph=None, kind=YAMLNODE_MAP):
         """ Initialise a new YAML mapping node
         :param keyseq: A sequence of nodes representing keys.
         :param valseq: A sequence of nodes representing matching values.
         """
-        YAMLNode.__init__(self, tag, anchor, graph, kind)
+        YAMLNode.__init__(self, tag, graph, kind)
         self.keyseq = keyseq
         self.valseq = valseq
 
