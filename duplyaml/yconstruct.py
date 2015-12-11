@@ -8,6 +8,7 @@ import numbers
 import base64
 
 from .yconst import *
+from .yexcept import *
 from .ygraph import YAMLNode, YAMLScalarNode, YAMLSeqNode, YAMLMapNode, YAMLGraph
 
 try:
@@ -29,25 +30,30 @@ class YAMLConstructor:
 
     def construct(self, item, theidmap = {}):
         gettag = item.tag
-        if gettag == TAG_NULL:
-            return None
-        if gettag == TAG_BOOL:
-            if item.canvalue in ["true"]:
-                return True
-            else:
-                return False
-        if gettag == TAG_STR:
-            return item.canvalue
-        if gettag == TAG_INT:
-            return int(item.canvalue)
-        if gettag == TAG_FLOAT:
-            return float(item.canvalue)
-        if gettag == TAG_BINARY:
-            return base64.b64decode(item.canvalue)
+        try:
+            if gettag == TAG_NULL:
+                return None
+            if gettag == TAG_BOOL:
+                if item.canvalue in ["true"]:
+                    return True
+                else:
+                    return False
+            if gettag == TAG_STR:
+                return item.canvalue
+            if gettag == TAG_INT:
+                return int(item.canvalue)
+            if gettag == TAG_FLOAT:
+                return float(item.canvalue)
+            if gettag == TAG_BINARY:
+                return base64.b64decode(item.canvalue)
 #        if isinstance(item, numbers.Rational):
 #            return YAMLScalarNode(str(item), TAG_FRACTION)
 #        if isinstance(item, numbers.Complex):
 #            return YAMLScalarNode(str(item), TAG_COMPLEX)
+        except ValueError, e:
+            raise YAMLConstructException(
+                "attempting to coerce '%(can)s' into an %(tag)s" %
+                { "can":item.canvalue, "tag":item.tag})
 
         if item.id in self.idmap:
             return self.idmap[item.id]

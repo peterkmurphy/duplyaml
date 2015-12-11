@@ -11,6 +11,8 @@ testnodes = [YAMLScalarNode(CAN_NULL, "!!null"),
                ]
 testresults = [None, False, True, "", 0, 0.0]
 
+testexceptionnode = YAMLScalarNode("A", "!!int")
+
 yconstructthing = YAMLConstructor()
 
 
@@ -19,3 +21,5 @@ class TestConstruct(TestCase):
         testlen = len(testnodes)
         for i in range(testlen):
             self.assertEqual(yconstructthing.construct(testnodes[i]), testresults[i])
+
+        self.assertRaises(YAMLConstructException, yconstructthing.construct, testexceptionnode)

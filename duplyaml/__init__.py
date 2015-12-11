@@ -5,6 +5,7 @@
 # package.
 
 from .yconst import *
+from .yexcept import *
 from .ygraph import YAMLNode, YAMLScalarNode, YAMLSeqNode, YAMLMapNode, YAMLGraph
 from .yrepresent import YAMLRepresenter
 from .yconstruct import YAMLConstructor
