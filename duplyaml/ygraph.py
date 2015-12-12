@@ -22,7 +22,7 @@ class YAMLGraph:
         """ Adds a node as a new document to the representation graph.
         :param node: The node to add.
         """
-        self.children.extend(node)
+        self.children.append(node)
         node.graph = self
 
     def __len__(self):
