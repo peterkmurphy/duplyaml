@@ -5,6 +5,7 @@
 
 from .yconst import *
 from .yevent import YAMLEvent
+from .yexcept import *
 from .ygraph import YAMLNode, YAMLScalarNode, YAMLSeqNode, YAMLMapNode, YAMLGraph
 
 # These variables are useful for setting a stack of things to do.
@@ -27,35 +28,58 @@ class YAMLComposer(YAMLEvent):
 
     def start_stream(self, src):
         self.yamlgraph = YAMLGraph(src)
-        self.streamstarted = False
+        self.streamstarted = True
         self.streamended = False
         self.stackstate = []
+        self.stackstate.push(COMPOSESTACK_STREAM)
         self.nodestack = []
 
     def end_stream(self):
-        pass
+        self.streamstarted = False
+        self.streamended = True
 
     def start_document(self, directives):
+        self.anchormap = {}
         pass
 
     def end_document(self):
         pass
 
     def start_seq(self, anchor, tag):
-        pass
+        if anchor in self.anchormap:
+            raise YAMLDuplicateAnchorException(
+                "Anchor '%s' already declared" % anchor)
+        ourseqnode = YAMLSeqNode([], tag, self.yamlgraph)
+        self.anchormap[anchor] = ourseqnode
 
     def end_seq(self):
         pass
 
     def start_map(self, anchor, tag):
-        pass
+        if anchor in self.anchormap:
+            raise YAMLDuplicateAnchorException(
+                "Anchor '%s' already declared" % anchor)
+        ourmapnode = YAMLMapNode([], [], tag, self.yamlgraph)
+        self.anchormap[anchor] = ourmapnode
 
     def end_map(self):
         pass
 
     def scalar(self, anchor, tag, canvalue):
-        pass
+        if anchor in self.anchormap:
+            raise YAMLDuplicateAnchorException(
+                "Anchor '%s' already declared" % anchor)
+        ourscalarnode = YAMLScalarNode(canvalue, tag, self.yamlgraph)
+        self.anchormap[anchor] = ourscalarnode
+        return ourscalarnode # ?? Returning - or add to containing thang!
 
+
+
+    def alias(self, aliasval):
+        if aliasval not in self.anchormap:
+            raise YAMLAliasLacksAnchorException(
+                "Alias '%s' declared without corresponding anchor" % aliasval)
+        return self.anchormap[aliasval] # ?? Returning - or add to containing thang!
 
 
 

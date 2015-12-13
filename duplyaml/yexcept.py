@@ -9,4 +9,11 @@ class YAMLException(Exception):
 class YAMLConstructException(YAMLException):
     pass
 
+class YAMLComposeException(YAMLException):
+    pass
 
+class YAMLAliasLacksAnchorException(YAMLComposeException):
+    pass
+
+class YAMLDuplicateAnchorException(YAMLComposeException):
+    pass
