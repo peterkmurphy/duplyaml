@@ -21,31 +21,41 @@ class YAMLComposer(YAMLEvent):
     def __init__(self):
         self.anchormap = {}
         self.yamlgraph = None
-        self.streamstarted = False
-        self.streamended = False
         self.stackstate = []
         self.nodestack = []
+
+    def clearstack(self):
+        pass
+
+    def checkstreamstarted(self):
+        if not self.yamlgraph:
+            raise YAMLComposeException("Stream yet to start")
+
 
     def start_stream(self, src):
-        self.yamlgraph = YAMLGraph(src)
-        self.streamstarted = True
-        self.streamended = False
-        self.stackstate = []
-        self.stackstate.push(COMPOSESTACK_STREAM)
-        self.nodestack = []
+        if not self.yamlgraph:
+            self.yamlgraph = YAMLGraph(src)
+            self.stackstate = []
+            self.stackstate.push(COMPOSESTACK_STREAM)
+            self.nodestack = []
+        else:
+            raise YAMLComposeException("Stream %s already started" % src)
 
     def end_stream(self):
-        self.streamstarted = False
-        self.streamended = True
+        self.checkstreamstarted()
+        self.clearstack()
+        self.yamlgraph.finishgraph()
 
     def start_document(self, directives):
+        self.checkstreamstarted()
         self.anchormap = {}
         pass
 
     def end_document(self):
-        pass
+        self.checkstreamstarted()
 
     def start_seq(self, anchor, tag):
+        self.checkstreamstarted()
         if anchor in self.anchormap:
             raise YAMLDuplicateAnchorException(
                 "Anchor '%s' already declared" % anchor)
@@ -53,9 +63,10 @@ class YAMLComposer(YAMLEvent):
         self.anchormap[anchor] = ourseqnode
 
     def end_seq(self):
-        pass
+        self.checkstreamstarted()
 
     def start_map(self, anchor, tag):
+        self.checkstreamstarted()
         if anchor in self.anchormap:
             raise YAMLDuplicateAnchorException(
                 "Anchor '%s' already declared" % anchor)
@@ -63,9 +74,10 @@ class YAMLComposer(YAMLEvent):
         self.anchormap[anchor] = ourmapnode
 
     def end_map(self):
-        pass
+        self.checkstreamstarted()
 
     def scalar(self, anchor, tag, canvalue):
+        self.checkstreamstarted()
         if anchor in self.anchormap:
             raise YAMLDuplicateAnchorException(
                 "Anchor '%s' already declared" % anchor)
@@ -76,10 +88,14 @@ class YAMLComposer(YAMLEvent):
 
 
     def alias(self, aliasval):
+        self.checkstreamstarted()
         if aliasval not in self.anchormap:
             raise YAMLAliasLacksAnchorException(
                 "Alias '%s' declared without corresponding anchor" % aliasval)
         return self.anchormap[aliasval] # ?? Returning - or add to containing thang!
+
+    def addcontainingthang(self, node):
+
 
 
 

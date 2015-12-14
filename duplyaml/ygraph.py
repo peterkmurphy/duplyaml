@@ -8,6 +8,10 @@ from .yconst import *
 # The yappystgraph represents a YAML stream: "a sequence of disjoint directed graphs, each with a root node."
 # We treat this object differently from normal nodes.
 
+YAMLG_STATUS_NEWDOCREADY = 0
+YAMLG_STATUS_CAVITY = 1
+YAMLG_STATUS_FILLED = 2
+
 class YAMLGraph:
     """Represents a YAML representation graph."""
 
@@ -17,13 +21,48 @@ class YAMLGraph:
         """
         self.src = src
         self.children = []
+        self.status = YAMLG_STATUS_NEWDOCREADY
+        self.isfinished = False
 
     def add_doc(self, node):
         """ Adds a node as a new document to the representation graph.
         :param node: The node to add.
         """
+        if self.isfinished:
+            return False
         self.children.append(node)
         node.graph = self
+        return True
+
+    def createcativy(self):
+        if self.isfinished:
+            return False
+        if self.status != YAMLG_STATUS_NEWDOCREADY:
+            return False
+        self.children.append(None)
+        self.status = YAMLG_STATUS_CAVITY
+        return True
+
+    def fillcavity(self, node):
+        if self.isfinished:
+            return False
+        if self.status != YAMLG_STATUS_CAVITY:
+            return False
+        self.children[-1] = node
+        node.graph = self
+        self.status = YAMLG_STATUS_FILLED
+        return True
+
+    def readynextdoc(self):
+        if self.isfinished:
+            return False
+        if self.status != YAMLG_STATUS_FILLED:
+            return False
+        self.status = YAMLG_STATUS_NEWDOCREADY
+        return True
+
+    def finishgraph(self):
+        self.isfinished = True;
 
     def __len__(self):
         return len(self.children)
@@ -112,6 +151,9 @@ class YAMLSeqNode(YAMLNode):
     def __repr__(self):
         return "%s(%r)" % (self.__class__, dict(self.__dict__).pop("nodeseq"))
 
+YAMLMAP_STATUS_KEYREADY = 0
+YAMLMAP_STATUS_VALREADY = 1
+
 
 class YAMLMapNode(YAMLNode):
     """ Represents YAML nodes for mappings: """
@@ -123,6 +165,7 @@ class YAMLMapNode(YAMLNode):
         YAMLNode.__init__(self, tag, graph, kind)
         self.keyseq = keyseq
         self.valseq = valseq
+        self.status = YAMLMAP_STATUS_KEYREADY
 
     def addkvpair(self, nodekey, nodeval):
         """ Add a new node to the sequence.
@@ -133,6 +176,15 @@ class YAMLMapNode(YAMLNode):
         nodekey.graph = self.graph
         self.valseq.append(nodeval)
         nodeval.graph = self.graph
+
+    def addnode(self, node):
+        if self.status == YAMLMAP_STATUS_KEYREADY:
+            self.keyseq.append(node)
+            self.status = YAMLMAP_STATUS_VALREADY
+        else:
+            self.valseq.append(node)
+            self.status = YAMLMAP_STATUS_KEYREADY
+        node.graph = self.graph
 
 
     def checkeq(self, other, dchecks):
