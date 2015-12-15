@@ -151,8 +151,7 @@ class YAMLSeqNode(YAMLNode):
     def __repr__(self):
         return "%s(%r)" % (self.__class__, dict(self.__dict__).pop("nodeseq"))
 
-YAMLMAP_STATUS_KEYREADY = 0
-YAMLMAP_STATUS_VALREADY = 1
+
 
 
 class YAMLMapNode(YAMLNode):

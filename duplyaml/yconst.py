@@ -10,6 +10,12 @@ YAMLNODE_SCA = 1 # Used with scalar nodes.
 YAMLNODE_SEQ = 2 # Used with sequence nodes.
 YAMLNODE_MAP = 3 # Used with mapping nodes.
 
+# Special statuses for maps
+
+YAMLMAP_STATUS_KEYREADY = 0
+YAMLMAP_STATUS_VALREADY = 1
+
+
 # Tag constants
 
 TAG_MAP = "!!map" # Unordered set of key: value pairs without duplicates.
