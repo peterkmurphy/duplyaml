@@ -57,6 +57,43 @@ lncol = [ln0, ln1, ln2, ln3, ln4, ln5, ln6, ln7, ln8, ln9, ln10, ln13, ln16]
 lnlen = len(lncol)
 
 mn0 = YAMLMapNode([], [], "!!map")
+mn1 = YAMLMapNode([], [], "!!map")
+mn2 = YAMLMapNode([], [], "!!set")
+mn3 = YAMLMapNode([], [], "!!set")
+mn4 = YAMLMapNode([sn2], [sn0], "!!map")
+mn5 = YAMLMapNode([sn2], [sn1], "!!map")
+mn6 = YAMLMapNode([sn2], [sn0], "!!set")
+mn7 = YAMLMapNode([sn2], [sn1], "!!set")
+mn8 = YAMLMapNode([sn3], [sn0], "!!set")
+mn9 = YAMLMapNode([sn3], [sn1], "!!set")
+mn10 = YAMLMapNode([sn4], [sn0], "!!set")
+mn11 = YAMLMapNode([sn4], [sn1], "!!set")
+
+mn12 = YAMLMapNode([sn2, mn4], [sn0, sn1], "!!map")
+mn13 = YAMLMapNode([sn2, mn5], [sn1, sn0], "!!map")
+mn14 = YAMLMapNode([sn2, mn6], [sn0, sn1], "!!set")
+mn15 = YAMLMapNode([sn2, mn7], [sn1, sn0], "!!set")
+mn16 = YAMLMapNode([sn3, mn8], [sn0, sn1], "!!set")
+mn17 = YAMLMapNode([sn3, mn9], [sn1, sn0], "!!set")
+mn18 = YAMLMapNode([sn4, mn10], [sn0, sn1], "!!set")
+mn19 = YAMLMapNode([sn4, mn11], [sn1, sn0], "!!set")
+
+mn20 = YAMLMapNode([sn2], [sn0], "!!map")
+mn20.addkvpair(mn20, sn0)
+mn21 = YAMLMapNode([sn2], [sn1], "!!map")
+mn21.addkvpair(mn21, sn1)
+
+mn22 = YAMLMapNode([], [], "!!map")
+mn22.addkvpair(mn20, sn0)
+mn22.addkvpair(sn2, ln10)
+
+mn23 = YAMLMapNode([], [], "!!map")
+mn23.addkvpair(mn21, sn1)
+mn23.addkvpair(sn2, ln13)
+
+mncol = [mn0, mn1, mn2, mn3, mn4, mn5, mn6, mn7, mn8, mn9, mn10, mn11,
+         mn12, mn13, mn14, mn15, mn16, mn17, mn18, mn19, mn20, mn21, mn22, mn23]
+mnlen = len(mncol)
 
 class TestGraph(TestCase):
     def test_is_graph(self):
@@ -112,6 +149,17 @@ class TestNodeEq(TestCase):
                 else:
                     self.assertTrue(lncol[i] != lncol[j])
                     self.assertFalse(lncol[i] == lncol[j])
+
+        for i in range(mnlen):
+            for j in range(mnlen):
+                if i == j or set([i, j]) in [set([0, 1]), set([2, 3]), set([4, 5]), set([6, 7]),
+                        set([8, 9]), set([10, 11]), set([12, 13]), set([14, 15]),
+                        set([16, 17]), set([18, 19]), set([20, 21]), set([22, 23])]:
+                    self.assertTrue(mncol[i] == mncol[j])
+                    self.assertFalse(mncol[i] != mncol[j])
+                else:
+                    self.assertTrue(mncol[i] != mncol[j])
+                    self.assertFalse(mncol[i] == mncol[j])
 
 
 
