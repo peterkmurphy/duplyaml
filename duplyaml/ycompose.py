@@ -22,7 +22,7 @@ class YAMLComposer(YAMLEvent):
                 nodepop.addnode(YAMLScalarNode("null", "!null"))
 
     def checkstreamstarted(self):
-        if not self.yamlgraph:
+        if self.yamlgraph is None:
             raise YAMLComposeException("Stream yet to start")
 
     def start_stream(self, src):

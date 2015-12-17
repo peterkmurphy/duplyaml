@@ -15,5 +15,17 @@ sncol.append(mn)
 listicle = YAMLSeqNode(sncol, "!!seq")
 ygapher = YAMLGraph("l")
 ygapher.add_doc(listicle)
-Yase = YAMLSerializer(ygapher)
+ygapher.add_doc(sn0)
+ygapher.add_doc(sn1)
+ygapher.add_doc(sn2)
+ygapher.add_doc(sn3)
+ygapher.add_doc(sn4)
+ygapher.add_doc(mn)
+Yase = YAMLSerializer(ygapher, YAMLComposer())
 Yase.serializestream()
+
+class TestSerialise(TestCase):
+    def test_serialisation(self):
+        testlen = len(ygapher.children)
+        for i in range(testlen):
+            self.assertEqual(ygapher.children[i], Yase.yamlgraph.children[i])

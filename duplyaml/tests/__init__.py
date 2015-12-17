@@ -43,7 +43,8 @@ def all_tests_suite():
             unittest.TestLoader().loadTestsFromNames([
                 'duplyaml.tests.test_graph',
                 'duplyaml.tests.test_represent',
-                'duplyaml.tests.test_contruct',
+                'duplyaml.tests.test_construct',
+                'duplyaml.tests.test_serialize',
             ]))
     suite = get_suite()
 #    import simplejson

@@ -11,3 +11,4 @@ from .ygraph import YAMLNode, YAMLScalarNode, YAMLSeqNode, YAMLMapNode, YAMLGrap
 from .yrepresent import YAMLRepresenter
 from .yconstruct import YAMLConstructor
 from .yserialize import YAMLSerializer
+from .ycompose import YAMLComposer

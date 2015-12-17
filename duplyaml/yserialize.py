@@ -22,7 +22,7 @@ class YAMLSerializer:
         self.makeanchor = makeanchor
 
     def serializestream(self):
-        self.yamleventer.start_stream()
+        self.yamleventer.start_stream(None)
         for item in self.yamlgraph.children:
             self.serializedoc(item)
         self.yamleventer.end_stream()
