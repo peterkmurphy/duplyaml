@@ -10,10 +10,11 @@ from .ygraph import YAMLNode, YAMLScalarNode, YAMLSeqNode, YAMLMapNode, YAMLGrap
 
 class YAMLComposer(YAMLEvent):
     """ Makes YAML graphs out of events. """
-    def __init__(self):
+    def __init__(self, src):
         self.anchormap = {}
         self.yamlgraph = None
         self.nodestack = []
+        YAMLEvent.__init__(self, src)
 
     def clearstack(self):
         while self.nodestack:
@@ -25,9 +26,9 @@ class YAMLComposer(YAMLEvent):
         if self.yamlgraph is None:
             raise YAMLComposeException("Stream yet to start")
 
-    def start_stream(self, src):
+    def start_stream(self):
         if not self.yamlgraph:
-            self.yamlgraph = YAMLGraph(src)
+            self.yamlgraph = YAMLGraph(self.src)
             self.nodestack = []
         else:
             raise YAMLComposeException("Stream %s already started" % src)

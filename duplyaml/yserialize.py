@@ -15,14 +15,14 @@ def genanchors():
 
 class YAMLSerializer:
     """ Makes native data out of YAML graph. """
-    def __init__(self, yamlgraph, yamleventer = YAMLEvent(), makeanchor = genanchors):
+    def __init__(self, yamlgraph, yamleventer = YAMLEvent(None), makeanchor = genanchors):
         self.anchormap = {}
         self.yamlgraph = yamlgraph
         self.yamleventer = yamleventer
         self.makeanchor = makeanchor
 
     def serializestream(self):
-        self.yamleventer.start_stream(None)
+        self.yamleventer.start_stream()
         for item in self.yamlgraph.children:
             self.serializedoc(item)
         self.yamleventer.end_stream()

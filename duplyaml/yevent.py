@@ -8,8 +8,8 @@ class YAMLEvent:
 
 # This is an interface for classes for composing or serializing.
 
-    def __init__(self):
-        pass
+    def __init__(self, src):
+        self.src = src
 
     def start_stream(self):
         pass

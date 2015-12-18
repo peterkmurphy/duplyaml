@@ -21,7 +21,7 @@ ygapher.add_doc(sn2)
 ygapher.add_doc(sn3)
 ygapher.add_doc(sn4)
 ygapher.add_doc(mn)
-Yase = YAMLSerializer(ygapher, YAMLComposer())
+Yase = YAMLSerializer(ygapher, YAMLComposer(None))
 Yase.serializestream()
 
 class TestSerialise(TestCase):
