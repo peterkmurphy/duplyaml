@@ -12,6 +12,7 @@ YAMLG_STATUS_NEWDOCREADY = 0
 YAMLG_STATUS_CAVITY = 1
 YAMLG_STATUS_FILLED = 2
 
+
 class YAMLGraph:
     """Represents a YAML representation graph."""
 
@@ -62,7 +63,7 @@ class YAMLGraph:
         return True
 
     def finishgraph(self):
-        self.isfinished = True;
+        self.isfinished = True
 
     def __len__(self):
         return len(self.children)
@@ -82,13 +83,10 @@ class YAMLNode:
         self.kind = kind
 
     def checkeq(self, other, dchecks):
-        return self.kind == other.kind and self.tag == other.tag
-
-    def __eq__(self, other):
         return self.tag == other.tag and self.kind == other.kind
 
-    def checkeq(self, other, dchecks):
-        return self.__eq__(other)
+    def __eq__(self, other):
+        return self.checkeq(other, {})
 
     def __repr__(self):
         return "%s(%r)" % (self.__class__, self.__dict__)
@@ -99,24 +97,24 @@ class YAMLNode:
 
 class YAMLScalarNode(YAMLNode):
     """ Represents YAML nodes for scalar data: strings, integers, floats, etc. """
-    def __init__(self, canvalue, tag, graph=None, kind=YAMLNODE_SCA):
+    def __init__(self, canvalue, tag, graph=None):
         """ Initialise a new YAML scalar node
         :param canvalue: This is the canonical value (and should be a string).
         """
-        YAMLNode.__init__(self, tag, graph, kind)
+        YAMLNode.__init__(self, tag, graph, YAMLNODE_SCA)
         self.canvalue = canvalue
 
-    def __eq__(self, other):
-        return YAMLNode.__eq__(self, other) and self.canvalue == other.canvalue
+    def checkeq(self, other, dchecks):
+        return YAMLNode.checkeq(self, other, dchecks) and self.canvalue == other.canvalue
 
 
 class YAMLSeqNode(YAMLNode):
     """ Represents YAML nodes for sequences: """
-    def __init__(self, nodeseq, tag, graph=None, kind=YAMLNODE_SEQ):
+    def __init__(self, nodeseq, tag, graph=None):
         """ Initialise a new YAML sequence node
         :param nodeseq: A sequence of nodes).
         """
-        YAMLNode.__init__(self, tag, graph, kind)
+        YAMLNode.__init__(self, tag, graph, YAMLNODE_SEQ)
         self.nodeseq = nodeseq
 
     def addnode(self, node):
@@ -131,7 +129,7 @@ class YAMLSeqNode(YAMLNode):
         if idtuple in dchecks:
             return True
         dchecks[idtuple] = False
-        if not YAMLNode.__eq__(self, other):
+        if not YAMLNode.checkeq(self, other, dchecks):
             dchecks[idtuple] = True
             return False
         selflen = len(self.nodeseq)
@@ -145,23 +143,18 @@ class YAMLSeqNode(YAMLNode):
         dchecks[idtuple] = True
         return True
 
-    def __eq__(self, other):
-        return self.checkeq(other, {})
-
     def __repr__(self):
         return "%s(%r)" % (self.__class__, dict(self.__dict__).pop("nodeseq"))
 
 
-
-
 class YAMLMapNode(YAMLNode):
     """ Represents YAML nodes for mappings: """
-    def __init__(self, keyseq, valseq, tag, graph=None, kind=YAMLNODE_MAP):
+    def __init__(self, keyseq, valseq, tag, graph=None):
         """ Initialise a new YAML mapping node
         :param keyseq: A sequence of nodes representing keys.
         :param valseq: A sequence of nodes representing matching values.
         """
-        YAMLNode.__init__(self, tag, graph, kind)
+        YAMLNode.__init__(self, tag, graph, YAMLNODE_MAP)
         self.keyseq = keyseq
         self.valseq = valseq
         self.status = YAMLMAP_STATUS_KEYREADY
@@ -185,13 +178,12 @@ class YAMLMapNode(YAMLNode):
             self.status = YAMLMAP_STATUS_KEYREADY
         node.graph = self.graph
 
-
     def checkeq(self, other, dchecks):
         idtuple = (id(self), id(other),)
-        if (idtuple) in dchecks:
+        if idtuple in dchecks:
             return True
         dchecks[idtuple] = False
-        if not YAMLNode.__eq__(self, other):
+        if not YAMLNode.checkeq(self, other, dchecks):
             dchecks[idtuple] = True
             return False
         selflen = len(self.keyseq)
@@ -209,15 +201,7 @@ class YAMLMapNode(YAMLNode):
         dchecks[idtuple] = True
         return True
 
-    def __eq__(self, other):
-        return self.checkeq(other, {})
-
-
     def __repr__(self):
         return "%s(%r)" % (self.__class__,
-            {key: self.__dict__[key] for key in self.__dict__ if key not in ["keyseq", "valueseq"]})
-
-
-
-
-
+                {key: self.__dict__[key] for key in
+                self.__dict__ if key not in ["keyseq", "valueseq"]})
