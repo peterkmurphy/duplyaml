@@ -34,18 +34,18 @@ class YAMLConstructor:
             if gettag == TAG_NULL:
                 return None
             if gettag == TAG_BOOL:
-                if item.canvalue in ["true"]:
+                if item.scalarval in ["true"]:
                     return True
                 else:
                     return False
             if gettag == TAG_STR:
-                return item.canvalue
+                return item.scalarval
             if gettag == TAG_INT:
-                return int(item.canvalue)
+                return int(item.scalarval)
             if gettag == TAG_FLOAT:
-                return float(item.canvalue)
+                return float(item.scalarval)
             if gettag == TAG_BINARY:
-                return base64.b64decode(item.canvalue)
+                return base64.b64decode(item.scalarval)
 #        if isinstance(item, numbers.Rational):
 #            return YAMLScalarNode(str(item), TAG_FRACTION)
 #        if isinstance(item, numbers.Complex):
@@ -53,7 +53,7 @@ class YAMLConstructor:
         except ValueError, e:
             raise YAMLConstructException(
                 "attempting to coerce '%(can)s' into an %(tag)s" %
-                { "can":item.canvalue, "tag":item.tag})
+                { "can":item.scalarval, "tag":item.tag})
 
         if item.id in self.idmap:
             return self.idmap[item.id]

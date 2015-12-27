@@ -81,6 +81,9 @@ class YAMLNode:
         self.tag = tag
         self.graph = graph
         self.kind = kind
+        self.startpos = None
+        self.endpos = None
+
 
     def checkeq(self, other, dchecks):
         return self.tag == other.tag and self.kind == other.kind
@@ -97,15 +100,15 @@ class YAMLNode:
 
 class YAMLScalarNode(YAMLNode):
     """ Represents YAML nodes for scalar data: strings, integers, floats, etc. """
-    def __init__(self, canvalue, tag, graph=None):
+    def __init__(self, scalarval, tag, graph=None):
         """ Initialise a new YAML scalar node
-        :param canvalue: This is the canonical value (and should be a string).
+        :param scalarval: This is the canonical value (and should be a string).
         """
         YAMLNode.__init__(self, tag, graph, YAMLNODE_SCA)
-        self.canvalue = canvalue
+        self.scalarval = scalarval
 
     def checkeq(self, other, dchecks):
-        return YAMLNode.checkeq(self, other, dchecks) and self.canvalue == other.canvalue
+        return YAMLNode.checkeq(self, other, dchecks) and self.scalarval == other.scalarval
 
 
 class YAMLSeqNode(YAMLNode):

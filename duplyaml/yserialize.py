@@ -40,7 +40,7 @@ class YAMLSerializer:
             ouranchor = self.makeanchor()
             self.anchormap[id(item)] = ouranchor
             if item.kind == YAMLNODE_SCA:
-                self.yamleventer.scalar(ouranchor, item.tag, item.canvalue)
+                self.yamleventer.scalar(ouranchor, item.tag, item.scalarval)
             if item.kind == YAMLNODE_SEQ:
                 self.yamleventer.start_seq(ouranchor, item.tag)
                 for subnode in item.nodeseq:
