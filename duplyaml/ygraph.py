@@ -16,7 +16,7 @@ YAMLG_STATUS_FILLED = 2
 class YAMLGraph:
     """Represents a YAML representation graph."""
 
-    def __init__(self, src):
+    def __init__(self, src, startpos = None):
         """ Initializes a YAML representation graph
         :param src: The source of the data. This is implementation dependent.
         """
@@ -24,6 +24,10 @@ class YAMLGraph:
         self.children = []
         self.status = YAMLG_STATUS_NEWDOCREADY
         self.isfinished = False
+        self.startpos = startpos
+        self.endpos = None
+        self.docstartposns = []
+        self.docendposns = []
 
     def add_doc(self, node):
         """ Adds a node as a new document to the representation graph.
@@ -35,12 +39,13 @@ class YAMLGraph:
         node.graph = self
         return True
 
-    def createcativy(self):
+    def createcativy(self, pos):
         if self.isfinished:
             return False
         if self.status != YAMLG_STATUS_NEWDOCREADY:
             return False
         self.children.append(None)
+        self.docstartposns.append(pos)
         self.status = YAMLG_STATUS_CAVITY
         return True
 
@@ -54,16 +59,18 @@ class YAMLGraph:
         self.status = YAMLG_STATUS_FILLED
         return True
 
-    def readynextdoc(self):
+    def readynextdoc(self, pos):
         if self.isfinished:
             return False
         if self.status != YAMLG_STATUS_FILLED:
             return False
         self.status = YAMLG_STATUS_NEWDOCREADY
+        self.docendposns.append(pos)
         return True
 
-    def finishgraph(self):
+    def finishgraph(self, endpos):
         self.isfinished = True
+        self.endpos = endpos
 
     def __len__(self):
         return len(self.children)
@@ -72,7 +79,7 @@ class YAMLGraph:
 class YAMLNode:
     """ Represents a node in a YAML document. """
 
-    def __init__(self, tag, graph=None, kind=YAMLNODE_DEF):
+    def __init__(self, tag, graph=None, kind=YAMLNODE_DEF, startpos = None, endpos = None):
         """ Initialises a new YAML node
         :param tag: Indicates the types of data - string, integer, etc.
         :param graph: Indicates the YAML representation graph containing it, if any.
@@ -81,8 +88,8 @@ class YAMLNode:
         self.tag = tag
         self.graph = graph
         self.kind = kind
-        self.startpos = None
-        self.endpos = None
+        self.startpos = startpos
+        self.endpos = endpos
 
 
     def checkeq(self, other, dchecks):
@@ -97,14 +104,17 @@ class YAMLNode:
     def __ne__(self, other):
         return not self == other
 
+    def setfinalpos(self, endpos):
+        self.endpos = endpos
+
 
 class YAMLScalarNode(YAMLNode):
     """ Represents YAML nodes for scalar data: strings, integers, floats, etc. """
-    def __init__(self, scalarval, tag, graph=None):
+    def __init__(self, scalarval, tag, graph=None, startpos=None, endpos=None):
         """ Initialise a new YAML scalar node
         :param scalarval: This is the canonical value (and should be a string).
         """
-        YAMLNode.__init__(self, tag, graph, YAMLNODE_SCA)
+        YAMLNode.__init__(self, tag, graph, YAMLNODE_SCA, startpos, endpos)
         self.scalarval = scalarval
 
     def checkeq(self, other, dchecks):
@@ -113,11 +123,11 @@ class YAMLScalarNode(YAMLNode):
 
 class YAMLSeqNode(YAMLNode):
     """ Represents YAML nodes for sequences: """
-    def __init__(self, nodeseq, tag, graph=None):
+    def __init__(self, nodeseq, tag, graph=None, startpos=None, endpos=None):
         """ Initialise a new YAML sequence node
         :param nodeseq: A sequence of nodes).
         """
-        YAMLNode.__init__(self, tag, graph, YAMLNODE_SEQ)
+        YAMLNode.__init__(self, tag, graph, YAMLNODE_SEQ, startpos, endpos)
         self.nodeseq = nodeseq
 
     def addnode(self, node):
@@ -152,12 +162,12 @@ class YAMLSeqNode(YAMLNode):
 
 class YAMLMapNode(YAMLNode):
     """ Represents YAML nodes for mappings: """
-    def __init__(self, keyseq, valseq, tag, graph=None):
+    def __init__(self, keyseq, valseq, tag, graph=None, startpos=None, endpos=None):
         """ Initialise a new YAML mapping node
         :param keyseq: A sequence of nodes representing keys.
         :param valseq: A sequence of nodes representing matching values.
         """
-        YAMLNode.__init__(self, tag, graph, YAMLNODE_MAP)
+        YAMLNode.__init__(self, tag, graph, YAMLNODE_MAP, startpos, endpos)
         self.keyseq = keyseq
         self.valseq = valseq
         self.status = YAMLMAP_STATUS_KEYREADY

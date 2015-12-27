@@ -7,18 +7,16 @@
 
 class YAMLEvent:
     """ The YAMLEvent class is an interface for all classes that process YAML
-        serialisation events. An instant of a YAMLEvent/YAMLEvent descendant
-        is passed to another class instance - the sender - and each method
-        inside the YAMLEvent instance represents a YAML serialization event.
-        The sender calls methods in the YAMLEvent instance to "send" events
-        to it.
+    serialisation events. An instant of a YAMLEvent/YAMLEvent descendant is
+    passed to another class instance - the sender - and each method inside
+    the YAMLEvent instance represents a YAML serialization event. The sender
+    calls methods in the YAMLEvent instance to "send" events to it.
 
-        By itself, YAMLEvent does nothing - is is just an interface. The
-        implementations are more interesting, such as:
+    By itself, YAMLEvent does nothing - is is just an interface. The
+    implementations are more interesting, such as:
 
-        - YAMLCompose: takes serialisation events and forms a YAMLGraph.
-        - YAMLDump: takes serialisations events and creates a YAML stream.
-
+    - YAMLCompose: takes serialisation events and forms a YAMLGraph.
+    - YAMLDump: takes serialisations events and creates a YAML stream.
     """
 
     def __init__(self, src):

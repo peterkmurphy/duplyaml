@@ -8,6 +8,7 @@ from .yevent import YAMLEvent
 from .yexcept import *
 from .ygraph import YAMLNode, YAMLScalarNode, YAMLSeqNode, YAMLMapNode, YAMLGraph
 
+
 class YAMLComposer(YAMLEvent):
     """ Makes YAML graphs out of events. """
     def __init__(self, src):
@@ -26,74 +27,76 @@ class YAMLComposer(YAMLEvent):
         if self.yamlgraph is None:
             raise YAMLComposeException("Stream yet to start")
 
-    def start_stream(self):
+    def start_stream(self, pos=None):
         if not self.yamlgraph:
-            self.yamlgraph = YAMLGraph(self.src)
+            self.yamlgraph = YAMLGraph(self.src, pos)
             self.nodestack = []
         else:
-            raise YAMLComposeException("Stream %s already started" % src)
+            raise YAMLComposeException("Stream %s already started" % self.src)
 
-    def end_stream(self):
+    def end_stream(self, pos=None):
         self.checkstreamstarted()
         self.clearstack()
-        self.yamlgraph.finishgraph()
+        self.yamlgraph.finishgraph(pos)
 
-    def start_document(self, directives):
+    def start_document(self, directives, pos=None):
         self.checkstreamstarted()
         self.anchormap = {}
-        self.yamlgraph.createcativy()
+        self.yamlgraph.createcativy(pos)
 
-    def end_document(self):
+    def end_document(self, pos=None):
         self.checkstreamstarted()
         self.clearstack()
-        self.yamlgraph.readynextdoc()
+        self.yamlgraph.readynextdoc(pos)
 
-    def start_seq(self, anchor, tag):
+    def start_seq(self, anchor, tag, pos=None):
         self.checkstreamstarted()
         if anchor in self.anchormap:
             raise YAMLDuplicateAnchorException(
                 "Anchor '%s' already declared" % anchor)
-        ourseqnode = YAMLSeqNode([], tag, self.yamlgraph)
+        ourseqnode = YAMLSeqNode([], tag, self.yamlgraph, pos)
         self.anchormap[anchor] = ourseqnode
         self.addcontainingthang(ourseqnode)
         self.nodestack.append(ourseqnode)
 
-    def end_seq(self):
+    def end_seq(self, pos=None):
         self.checkstreamstarted()
         while self.nodestack:
             nodepop = self.nodestack.pop()
-            if (nodepop.kind == YAMLNODE_SEQ):
-                return;
+            if nodepop.kind == YAMLNODE_SEQ:
+                nodepop.setfinalpos(pos)
+                return
 
-    def start_map(self, anchor, tag):
+    def start_map(self, anchor, tag, pos=None):
         self.checkstreamstarted()
         if anchor in self.anchormap:
             raise YAMLDuplicateAnchorException(
                 "Anchor '%s' already declared" % anchor)
-        ourmapnode = YAMLMapNode([], [], tag, self.yamlgraph)
+        ourmapnode = YAMLMapNode([], [], tag, self.yamlgraph, pos)
         self.anchormap[anchor] = ourmapnode
         self.addcontainingthang(ourmapnode)
         self.nodestack.append(ourmapnode)
 
-    def end_map(self):
+    def end_map(self, pos=None):
         self.checkstreamstarted()
         while self.nodestack:
             nodepop = self.nodestack.pop()
-            if (nodepop.kind == YAMLNODE_MAP):
+            if nodepop.kind == YAMLNODE_MAP:
                 if nodepop.status == YAMLMAP_STATUS_VALREADY:
                     nodepop.addnode(YAMLScalarNode("null", "!null"))
-                return;
+                nodepop.setfinalpos(pos)
+                return
 
-    def scalar(self, anchor, tag, canvalue):
+    def scalar(self, anchor, tag, scalarval, startpos=None, endpos=None):
         self.checkstreamstarted()
         if anchor in self.anchormap:
             raise YAMLDuplicateAnchorException(
                 "Anchor '%s' already declared" % anchor)
-        ourscalarnode = YAMLScalarNode(canvalue, tag, self.yamlgraph)
+        ourscalarnode = YAMLScalarNode(scalarval, tag, self.yamlgraph, startpos, endpos)
         self.anchormap[anchor] = ourscalarnode
         self.addcontainingthang(ourscalarnode)
 
-    def alias(self, aliasval):
+    def alias(self, aliasval, startpos=None, endpos=None):
         self.checkstreamstarted()
         if aliasval not in self.anchormap:
             raise YAMLAliasLacksAnchorException(
