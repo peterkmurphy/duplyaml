@@ -24,6 +24,11 @@ ygapher.add_doc(mn)
 Yase = YAMLSerializer(ygapher, YAMLComposer(None))
 Yase.serializestream()
 
+import StringIO
+
+YAdumpit = YAMLSerializer(ygapher,YAMLDump(StringIO.StringIO()))
+YAdumpit.serializestream()
+
 class TestSerialise(TestCase):
     def test_serialisation(self):
         testlen = len(ygapher.children)

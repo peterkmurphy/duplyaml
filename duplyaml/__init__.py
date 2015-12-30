@@ -5,6 +5,7 @@
 # package.
 
 from .yconst import *
+from .ydump import YAMLDump
 from .yevent import YAMLEvent
 from .yexcept import *
 from .ygraph import YAMLNode, YAMLScalarNode, YAMLSeqNode, YAMLMapNode, YAMLGraph

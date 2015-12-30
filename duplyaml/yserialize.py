@@ -7,13 +7,12 @@ from .yconst import *
 from .yevent import YAMLEvent
 
 
-def genintstr():
+def genintstr(anchorout = 0):
     """ This method generates integers as strings starting from 0 increasing.
     It is the default anchor generator for YAMLSerializer
 
     :return: the next integer (as a string).
     """
-    anchorout = 0
     while True:
         yield str(anchorout)
         anchorout += 1
@@ -38,6 +37,7 @@ class YAMLSerializer:
         self.yamlgraph = yamlgraph
         self.yamleventer = yamleventer
         self.makeanchor = makeanchor
+        self.makeanchorgen = None
 
     def serializestream(self):
         """ Call this method to start serializing the source graph. """
@@ -51,9 +51,11 @@ class YAMLSerializer:
         :param doc: A document node - one of the children of the YAMLGraph.
         """
         self.anchormap = {}
+        self.makeanchorgen = self.makeanchor()
         self.yamleventer.start_document({})
         self.serializenode(doc)
         self.yamleventer.end_document()
+
 
     def serializenode(self, node):
         """ Called for each individual node in the source YAMLGraph
@@ -63,7 +65,7 @@ class YAMLSerializer:
         if (id(node)) in self.anchormap:
             self.yamleventer.alias(self.anchormap[id(node)])
         else:
-            ouranchor = self.makeanchor()
+            ouranchor = self.makeanchorgen.next()
             self.anchormap[id(node)] = ouranchor
             if node.kind == YAMLNODE_SCA:
                 self.yamleventer.scalar(ouranchor, node.tag, node.scalarval)
