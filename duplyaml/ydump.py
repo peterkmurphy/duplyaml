@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # The duplyaml YAML processor.
 # The ydump.py file.
 # Used for dumping YAML streams.
@@ -61,15 +62,15 @@ class YAMLDump(YAMLEvent):
             if self.stackstate[-1] == DUMPSTACK_STATE_MAPKEY:
                 self.yamlfile.write("? ")
                 self.stackstate[-1] = DUMPSTACK_STATE_MAPVAL
-            if self.stackstate[-1] == DUMPSTACK_STATE_MAPVAL:
+            elif self.stackstate[-1] == DUMPSTACK_STATE_MAPVAL:
                 self.yamlfile.write(": ")
                 self.stackstate[-1] = DUMPSTACK_STATE_MAPKEY
 
     def writesuccessor(self):
         if self.stackstate:
-            if self.stackstate[-1] in [DUMPSTACK_STATE_MAPVAL,
+            if self.stackstate[-1] in [DUMPSTACK_STATE_MAPKEY,
                                        DUMPSTACK_STATE_SEQ]:
-                self.yamlfile.write(",")
+                self.yamlfile.write(u",")
         self.writelinesep("")
 
 

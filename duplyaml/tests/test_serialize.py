@@ -3,7 +3,6 @@ from unittest import TestCase
 from duplyaml import *
 
 
-
 sn0 = YAMLScalarNode("null", "!!null")
 sn1 = YAMLScalarNode("null", "!!null")
 sn2 = YAMLScalarNode("", "!!str")
@@ -28,6 +27,7 @@ import StringIO
 
 YAdumpit = YAMLSerializer(ygapher,YAMLDump(StringIO.StringIO()))
 YAdumpit.serializestream()
+print YAdumpit.yamleventer.yamlfile.getvalue()
 
 class TestSerialise(TestCase):
     def test_serialisation(self):

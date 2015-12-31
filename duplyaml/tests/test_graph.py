@@ -1,99 +1,11 @@
 from unittest import TestCase
 
 from duplyaml import *
-
-yn0 = YAMLNode("!!null")
-yn1 = YAMLNode("!!null")
-yn2 = YAMLNode("!!str")
-yn3 = YAMLNode("!!seq")
-yn4 = YAMLNode("!!map")
-sn0 = YAMLScalarNode("null", "!!null")
-sn1 = YAMLScalarNode("null", "!!null")
-sn2 = YAMLScalarNode("", "!!str")
-sn3 = YAMLScalarNode("Test", "!!str")
-sn4 = YAMLScalarNode("test", "!!str")
-yncol = [yn0, yn1, yn2, yn3, yn4]
-sncol = [sn0, sn1, sn2, sn3, sn4]
-ln0 = YAMLSeqNode([], "!!seq")
-ln1 = YAMLSeqNode([], "!!seq")
-ln2 = YAMLSeqNode([], "!!seq")
-ln2.addnode(sn0)
-ln3 = YAMLSeqNode([], "!!seq")
-ln3.addnode(sn1)
-ln4 = YAMLSeqNode([], "!!seq")
-ln4.addnode(sn2)
-ln5 = YAMLSeqNode([], "!!seq")
-ln5.addnode(sn3)
-ln6 = YAMLSeqNode([], "!!seq")
-ln6.addnode(sn4)
-ln7 = YAMLSeqNode([], "!!omap")
-ln8 = YAMLSeqNode([], "!!seq")
-ln8.addnode(ln8)
-ln9 = YAMLSeqNode([], "!!seq")
-ln9.addnode(ln9)
-ln10 = YAMLSeqNode([], "!!seq")
-ln11 = YAMLSeqNode([], "!!seq")
-ln10.addnode(ln11)
-ln11.addnode(sn1)
-ln12 = YAMLSeqNode([], "!!seq")
-ln11.addnode(ln12)
-ln12.addnode(ln10)
-ln13 = YAMLSeqNode([], "!!seq")
-ln14 = YAMLSeqNode([], "!!seq")
-ln13.addnode(ln14)
-ln14.addnode(sn1)
-ln15 = YAMLSeqNode([], "!!seq")
-ln14.addnode(ln15)
-ln15.addnode(ln13)
-ln16 = YAMLSeqNode([], "!!seq")
-ln17 = YAMLSeqNode([], "!!seq")
-ln16.addnode(ln17)
-ln18 = YAMLSeqNode([], "!!seq")
-ln17.addnode(ln18)
-ln17.addnode(sn1)
-ln18.addnode(ln16)
-
-lncol = [ln0, ln1, ln2, ln3, ln4, ln5, ln6, ln7, ln8, ln9, ln10, ln13, ln16]
-lnlen = len(lncol)
-
-mn0 = YAMLMapNode([], [], "!!map")
-mn1 = YAMLMapNode([], [], "!!map")
-mn2 = YAMLMapNode([], [], "!!set")
-mn3 = YAMLMapNode([], [], "!!set")
-mn4 = YAMLMapNode([sn2], [sn0], "!!map")
-mn5 = YAMLMapNode([sn2], [sn1], "!!map")
-mn6 = YAMLMapNode([sn2], [sn0], "!!set")
-mn7 = YAMLMapNode([sn2], [sn1], "!!set")
-mn8 = YAMLMapNode([sn3], [sn0], "!!set")
-mn9 = YAMLMapNode([sn3], [sn1], "!!set")
-mn10 = YAMLMapNode([sn4], [sn0], "!!set")
-mn11 = YAMLMapNode([sn4], [sn1], "!!set")
-
-mn12 = YAMLMapNode([sn2, mn4], [sn0, sn1], "!!map")
-mn13 = YAMLMapNode([sn2, mn5], [sn1, sn0], "!!map")
-mn14 = YAMLMapNode([sn2, mn6], [sn0, sn1], "!!set")
-mn15 = YAMLMapNode([sn2, mn7], [sn1, sn0], "!!set")
-mn16 = YAMLMapNode([sn3, mn8], [sn0, sn1], "!!set")
-mn17 = YAMLMapNode([sn3, mn9], [sn1, sn0], "!!set")
-mn18 = YAMLMapNode([sn4, mn10], [sn0, sn1], "!!set")
-mn19 = YAMLMapNode([sn4, mn11], [sn1, sn0], "!!set")
-
-mn20 = YAMLMapNode([sn2], [sn0], "!!map")
-mn20.addkvpair(mn20, sn0)
-mn21 = YAMLMapNode([sn2], [sn1], "!!map")
-mn21.addkvpair(mn21, sn1)
-
-mn22 = YAMLMapNode([], [], "!!map")
-mn22.addkvpair(mn20, sn0)
-mn22.addkvpair(sn2, ln10)
-
-mn23 = YAMLMapNode([], [], "!!map")
-mn23.addkvpair(mn21, sn1)
-mn23.addkvpair(sn2, ln13)
-
-mncol = [mn0, mn1, mn2, mn3, mn4, mn5, mn6, mn7, mn8, mn9, mn10, mn11,
-         mn12, mn13, mn14, mn15, mn16, mn17, mn18, mn19, mn20, mn21, mn22, mn23]
-mnlen = len(mncol)
+import os
+import sys
+print os.getcwd()
+sys.path.append(os.getcwd())
+from duplyaml.tests.globaltestdata import *
 
 class TestGraph(TestCase):
     def test_is_graph(self):
