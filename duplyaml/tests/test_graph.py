@@ -3,8 +3,6 @@ from unittest import TestCase
 from duplyaml import *
 import os
 import sys
-print os.getcwd()
-sys.path.append(os.getcwd())
 from duplyaml.tests.globaltestdata import *
 
 class TestGraph(TestCase):
