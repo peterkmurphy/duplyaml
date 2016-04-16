@@ -14,6 +14,12 @@ from .ygraph import YAMLNode, YAMLScalarNode, YAMLSeqNode, YAMLMapNode, YAMLGrap
 
 # http://stackoverflow.com/questions/11301138/how-to-check-if-variable-is-string-with-python-2-and-3-compatibility
 
+# Comments on this file:
+# It is possible to overthing this problem.
+
+
+
+
 try:
   basestring
 except NameError:
