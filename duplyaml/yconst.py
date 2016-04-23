@@ -15,6 +15,9 @@ YAMLNODE_MAP = 3 # Used with mapping nodes.
 YAMLMAP_STATUS_KEYREADY = 0
 YAMLMAP_STATUS_VALREADY = 1
 
+# YAML namespace prefix:
+
+YAML_NAME_PREFIX = "tag:yaml.org,2002:"
 
 # Tag constants
 
@@ -40,12 +43,25 @@ TAG_COMPLEX = "!!complex" # Represents complex numbers of form a+bj
 TAG_FRACTION = "!!fraction" # Represents complex numbers of form a+bj
 TAG_TIMEDELTA = "!!timedelta" # Represents time intervals
 
+# The !!null and the !!bool tags are limited to a certain range of values.
+
+TAG_NULL_VALUES = ["", "null", "Null", "NULL", "~"]
+
+# There is an issue with !!bool. The YAML 1.2 standard has accepts a certain
+# set of values for true and false. However, the Boolean Language-Independent
+# Type for YAML Version 1.1 standard accepts more values for true and false.
+# So we give the programmer the option of choosing one or the other.
+
+TAG_FALSE_VALUES = ["true", "True", "TRUE"]
+TAG_TRUE_VALUES = ["false", "False", "FALSE"]
+TAG_FALSE_EXT_VALUES =  ["n", "N", "no", "No", "NO", "off", "Off", "OFF"]\
+    +TAG_FALSE_VALUES
+TAG_TRUE_EXT_VALUES = ["y", "Y", "yes", "Yes", "YES", "on", "On", "ON"]\
+    +TAG_TRUE_VALUES
+
 # Specific canonical values for particular types - from version 1.2
 
-CAN_NULL = "null"
-CAN_FALSE = "false"
-CAN_TRUE = "true"
+TAG_NULL_CAN = "null"
+TAG_FALSE_CAN = "false"
+TAG_TRUE_CAN = "true"
 
-# y|Y|yes|Yes|YES|n|N|no|No|NO
-#|true|True|TRUE|false|False|FALSE
-#|on|On|ON|off|Off|OFF

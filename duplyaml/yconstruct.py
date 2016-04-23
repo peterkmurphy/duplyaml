@@ -21,6 +21,24 @@ class YAMLConstructor:
     def __init__(self):
         self.idmap = {}
 
+    @classmethod
+    def isnullstring(strin):
+        return (strin in TAG_NULL_VALUES)
+
+    @classmethod
+    def isfalsestring(strin, bext = False):
+        if bext:
+            return (strin in TAG_FALSE_EXT_VALUES)
+        else:
+            return (strin in TAG_FALSE_VALUES)
+
+    @classmethod
+    def istruestring(strin, bext = False):
+        if bext:
+            return (strin in TAG_TRUE_EXT_VALUES)
+        else:
+            return (strin in TAG_TRUE_VALUES)
+
     def createdata(self, yamlgraph):
         self.idmap = {}
         dataout = []

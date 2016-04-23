@@ -39,12 +39,12 @@ class YAMLRepresenter:
 
     def createnode(self, item, theidmap = {}):
         if item is None:
-            return YAMLScalarNode(CAN_NULL, TAG_NULL)
+            return YAMLScalarNode(TAG_NULL_CAN, TAG_NULL)
         if isinstance(item, bool):
             if item == True:
-                return YAMLScalarNode(CAN_TRUE, TAG_BOOL)
+                return YAMLScalarNode(TAG_TRUE_CAN, TAG_BOOL)
             if item == False:
-                return YAMLScalarNode(CAN_FALSE, TAG_BOOL)
+                return YAMLScalarNode(TAG_FALSE_CAN, TAG_BOOL)
         if isinstance(item, basestring):
             return YAMLScalarNode(item, TAG_STR)
         if isinstance(item, numbers.Integral):

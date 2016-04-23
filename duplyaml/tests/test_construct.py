@@ -2,9 +2,9 @@ from unittest import TestCase
 
 from duplyaml import *
 
-testnodes = [YAMLScalarNode(CAN_NULL, "!!null"),
-    YAMLScalarNode(CAN_FALSE, "!!bool"),
-    YAMLScalarNode(CAN_TRUE, "!!bool"),
+testnodes = [YAMLScalarNode(TAG_NULL_CAN, "!!null"),
+    YAMLScalarNode(TAG_FALSE_CAN, "!!bool"),
+    YAMLScalarNode(TAG_TRUE_CAN, "!!bool"),
     YAMLScalarNode("", "!!str"),
     YAMLScalarNode("0", "!!int"),
     YAMLScalarNode("0.0", "!!float"),
