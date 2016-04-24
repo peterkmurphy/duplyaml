@@ -16,6 +16,13 @@ try:
 except NameError:
   basestring = str
 
+# Work out schema
+# Exclamation
+# Question Mark
+# Tags
+
+
+
 class YAMLConstructor:
     """ Makes native data out of YAML graph. """
     def __init__(self):
