@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # The duplyaml YAML processor.
 # The ycompose.py file.
 # Used for creating YAMLGraphs from event streams

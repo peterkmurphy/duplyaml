@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from unittest import TestCase
 
 from duplyaml import *
@@ -5,7 +8,7 @@ from duplyaml import *
 testnodes = [YAMLScalarNode(TAG_NULL_CAN, "!!null"),
     YAMLScalarNode(TAG_FALSE_CAN, "!!bool"),
     YAMLScalarNode(TAG_TRUE_CAN, "!!bool"),
-    YAMLScalarNode("", "!!str"),
+    YAMLScalarNode("", "tag:yaml.org,2002:str"),
     YAMLScalarNode("0", "!!int"),
     YAMLScalarNode("0.0", "!!float"),
                ]

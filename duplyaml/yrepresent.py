@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # The duplyaml YAML processor.
 # The yrepresent.py file.
 # Used for the "represent" phase of YAML processing - creating YAML nodes

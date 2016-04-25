@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # The duplyaml YAML processor.
 # The yconst.py file.
 # Common constants used in YAML.
@@ -18,6 +19,10 @@ YAMLMAP_STATUS_VALREADY = 1
 # YAML namespace prefix:
 
 YAML_NAME_PREFIX = "tag:yaml.org,2002:"
+
+# For converting nodes in YAML name prefix into !!tag formats
+
+C_SECONDARY_TAG_HANDLE = "!!"
 
 # Tag constants
 
@@ -52,8 +57,8 @@ TAG_NULL_VALUES = ["", "null", "Null", "NULL", "~"]
 # Type for YAML Version 1.1 standard accepts more values for true and false.
 # So we give the programmer the option of choosing one or the other.
 
-TAG_FALSE_VALUES = ["true", "True", "TRUE"]
-TAG_TRUE_VALUES = ["false", "False", "FALSE"]
+TAG_TRUE_VALUES = ["true", "True", "TRUE"]
+TAG_FALSE_VALUES = ["false", "False", "FALSE"]
 TAG_FALSE_EXT_VALUES =  ["n", "N", "no", "No", "NO", "off", "Off", "OFF"]\
     +TAG_FALSE_VALUES
 TAG_TRUE_EXT_VALUES = ["y", "Y", "yes", "Yes", "YES", "on", "On", "ON"]\

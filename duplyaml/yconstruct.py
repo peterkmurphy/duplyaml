@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # The duplyaml YAML processor.
 # The yconstruct.py file.
 # Used for the "construct" phase of YAML processing - turning YAML nodes
@@ -24,27 +25,34 @@ except NameError:
 
 
 class YAMLConstructor:
-    """ Makes native data out of YAML graph. """
-    def __init__(self):
+    """ This class makes native data out of a YAML graph. """
+    def __init__(self, bext = False):
         self.idmap = {}
+        self.bext = bext
 
     @classmethod
-    def isnullstring(strin):
+    def isnullstring(cls, strin):
         return (strin in TAG_NULL_VALUES)
 
     @classmethod
-    def isfalsestring(strin, bext = False):
+    def isfalsestring(cls, strin, bext = False):
         if bext:
             return (strin in TAG_FALSE_EXT_VALUES)
         else:
             return (strin in TAG_FALSE_VALUES)
 
     @classmethod
-    def istruestring(strin, bext = False):
+    def istruestring(cls, strin, bext = False):
         if bext:
             return (strin in TAG_TRUE_EXT_VALUES)
         else:
             return (strin in TAG_TRUE_VALUES)
+
+    @classmethod
+    def raisecoerceexc(cls, node):
+        raise YAMLConstructException(
+            "attempting to coerce '%(can)s' into an %(tag)s" %
+            {"can": node.scalarval, "tag": node.tag})
 
     def createdata(self, yamlgraph):
         self.idmap = {}
@@ -55,14 +63,31 @@ class YAMLConstructor:
 
     def construct(self, item, theidmap = {}):
         gettag = item.tag
+
+# For YAML. there is no effective difference between !!tag and
+# "tag:yaml.org,2002:tag, so we convert to the former format.
+
+        if gettag.find(YAML_NAME_PREFIX) == 0:
+            gettag = C_SECONDARY_TAG_HANDLE+ gettag[len(YAML_NAME_PREFIX):]
+            print (gettag)
         try:
+
+ # We now do scalar elements in the YAML name space.
+
+
             if gettag == TAG_NULL:
-                return None
-            if gettag == TAG_BOOL:
-                if item.scalarval in ["true"]:
-                    return True
+                if YAMLConstructor.isnullstring(item.scalarval):
+                    return None
                 else:
+                    YAMLConstructor.raisecoerceexc(item)
+
+            if gettag == TAG_BOOL:
+                if YAMLConstructor.istruestring(item.scalarval, self.bext):
+                    return True
+                elif YAMLConstructor.isfalsestring(item.scalarval, self.bext):
                     return False
+                else:
+                    YAMLConstructor.raisecoerceexc(item)
             if gettag == TAG_STR:
                 return item.scalarval
             if gettag == TAG_INT:

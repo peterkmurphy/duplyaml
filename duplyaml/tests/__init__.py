@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # The duplyaml YAML processor.
 # The duplyaml/tests/__init__.py file.
 # Used to initialise testing.

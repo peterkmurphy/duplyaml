@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # The duplyaml YAML processor.
 # The yevent.py file.
 # Contains the class YAMLEvent - the base for all classes that are the target

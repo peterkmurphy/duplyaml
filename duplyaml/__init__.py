@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # The duplyaml YAML processor.
 # The duplyaml/__init__.py file.
 # The module initialiser - used to access other parts of the duplyaml

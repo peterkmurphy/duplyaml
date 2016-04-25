@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from duplyaml import *
 
 yn0 = YAMLNode("!!null")
