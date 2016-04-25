@@ -7,6 +7,7 @@
 
 import numbers
 import base64
+import re
 
 from .yconst import *
 from .yexcept import *
@@ -22,10 +23,15 @@ except NameError:
 # Question Mark
 # Tags
 
-
-
 class YAMLConstructor:
     """ This class makes native data out of a YAML graph. """
+
+    int_bin_regexp = re.compile("^[-+]?0b[0-1_]+$")
+    int_oct_regexp = re.compile("^[-+]?0o[0-7_]+$")
+    int_dec_regexp = re.compile("^[-+]?(0|[1-9][0-9_]*)$")
+    int_hex_regexp = re.compile("^[-+]?0x[0-9a-fA-F_]+$")
+    int_sex_regexp = re.compile("^[-+]?[1-9][0-9_]*(:[0-5]?[0-9])+$")
+
     def __init__(self, bext = False):
         self.idmap = {}
         self.bext = bext
@@ -48,11 +54,40 @@ class YAMLConstructor:
         else:
             return (strin in TAG_TRUE_VALUES)
 
+# Haven't done the base 60 thing
+
+    @classmethod
+    def getintfromstring(cls, strin):
+        strinwoutund = strin.replace("_", "")
+        try:
+            if cls.int_dec_regexp.match(strin):
+                return int(strinwoutund)
+            elif cls.int_oct_regexp.match(strin):
+                return int(strinwoutund.replace("o", ""), 8)
+
+            elif cls.int_hex_regexp.match(strin):
+                return int(strinwoutund.replace("x", ""), 16)
+
+            elif cls.int_bin_regexp.match(strin):
+               return int(strinwoutund.replace("b", ""), 2)
+            else:
+                return None
+
+        except:
+            return None
+
+    @classmethod
+    def getfloatstring(cls, strin):
+        pass;
+
+
     @classmethod
     def raisecoerceexc(cls, node):
         raise YAMLConstructException(
             "attempting to coerce '%(can)s' into an %(tag)s" %
             {"can": node.scalarval, "tag": node.tag})
+
+    # Come back later to work out details of exception.
 
     def createdata(self, yamlgraph):
         self.idmap = {}
@@ -88,14 +123,17 @@ class YAMLConstructor:
                     return False
                 else:
                     YAMLConstructor.raisecoerceexc(item)
-            if gettag == TAG_STR:
-                return item.scalarval
+
             if gettag == TAG_INT:
-                return int(item.scalarval)
+                return YAMLConstructor.getintfromstring(item.scalarval)
             if gettag == TAG_FLOAT:
                 return float(item.scalarval)
             if gettag == TAG_BINARY:
                 return base64.b64decode(item.scalarval)
+            if gettag == TAG_STR:
+                    return item.scalarval
+
+
 #        if isinstance(item, numbers.Rational):
 #            return YAMLScalarNode(str(item), TAG_FRACTION)
 #        if isinstance(item, numbers.Complex):

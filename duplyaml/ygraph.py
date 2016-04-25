@@ -13,7 +13,6 @@ YAMLG_STATUS_NEWDOCREADY = 0
 YAMLG_STATUS_CAVITY = 1
 YAMLG_STATUS_FILLED = 2
 
-
 class YAMLGraph:
     """Represents a YAML representation graph."""
 
