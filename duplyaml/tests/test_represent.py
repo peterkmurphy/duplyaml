@@ -5,15 +5,16 @@ from unittest import TestCase
 
 from duplyaml import *
 
-testscalars = [None, False, True, "", 0, 0.0, float("nan")]
-testresults = [YAMLScalarNode(TAG_NULL_CAN, "!!null"),
-    YAMLScalarNode(TAG_FALSE_CAN, "!!bool"),
-    YAMLScalarNode(TAG_TRUE_CAN, "!!bool"),
+testscalars = [None, False, True, "", 0, 0.0, NAN_PY, INF_PY, NINF_PY]
+testresults = [YAMLScalarNode(NULL_CAN, "!!null"),
+    YAMLScalarNode(FALSE_CAN, "!!bool"),
+    YAMLScalarNode(TRUE_CAN, "!!bool"),
     YAMLScalarNode("", "!!str"),
     YAMLScalarNode("0", "!!int"),
     YAMLScalarNode("0.0", "!!float"),
-    YAMLScalarNode("nan", "!!float"),
-
+    YAMLScalarNode(NAN_CAN, "!!float"),
+    YAMLScalarNode(INF_CAN, "!!float"),
+    YAMLScalarNode(NINF_CAN, "!!float"),
                ]
 yrepresentthing = YAMLRepresenter()
 

@@ -38,21 +38,21 @@ class YAMLConstructor:
 
     @classmethod
     def isnullstring(cls, strin):
-        return (strin in TAG_NULL_VALUES)
+        return (strin in NULL_VALUES)
 
     @classmethod
     def isfalsestring(cls, strin, bext = False):
         if bext:
-            return (strin in TAG_FALSE_EXT_VALUES)
+            return (strin in FALSE_EXT_VALUES)
         else:
-            return (strin in TAG_FALSE_VALUES)
+            return (strin in FALSE_VALUES)
 
     @classmethod
     def istruestring(cls, strin, bext = False):
         if bext:
-            return (strin in TAG_TRUE_EXT_VALUES)
+            return (strin in TRUE_EXT_VALUES)
         else:
-            return (strin in TAG_TRUE_VALUES)
+            return (strin in TRUE_VALUES)
 
 # Haven't done the base 60 thing
 
@@ -127,7 +127,14 @@ class YAMLConstructor:
             if gettag == TAG_INT:
                 return YAMLConstructor.getintfromstring(item.scalarval)
             if gettag == TAG_FLOAT:
-                return float(item.scalarval)
+                if item.scalarval == NAN_CAN:
+                    return NAN_PY
+                elif item.scalarval == INF_CAN:
+                    return INF_PY
+                elif item.scalarval == NINF_CAN:
+                    return  NINF_PY
+                else:
+                    return float(item.scalarval)
             if gettag == TAG_BINARY:
                 return base64.b64decode(item.scalarval)
             if gettag == TAG_STR:

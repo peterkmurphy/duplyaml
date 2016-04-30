@@ -50,23 +50,33 @@ TAG_TIMEDELTA = "!!timedelta" # Represents time intervals
 
 # The !!null and the !!bool tags are limited to a certain range of values.
 
-TAG_NULL_VALUES = ["", "null", "Null", "NULL", "~"]
+NULL_VALUES = ["", "null", "Null", "NULL", "~"]
 
 # There is an issue with !!bool. The YAML 1.2 standard has accepts a certain
 # set of values for true and false. However, the Boolean Language-Independent
 # Type for YAML Version 1.1 standard accepts more values for true and false.
 # So we give the programmer the option of choosing one or the other.
 
-TAG_TRUE_VALUES = ["true", "True", "TRUE"]
-TAG_FALSE_VALUES = ["false", "False", "FALSE"]
-TAG_FALSE_EXT_VALUES =  ["n", "N", "no", "No", "NO", "off", "Off", "OFF"]\
-    +TAG_FALSE_VALUES
-TAG_TRUE_EXT_VALUES = ["y", "Y", "yes", "Yes", "YES", "on", "On", "ON"]\
-    +TAG_TRUE_VALUES
+TRUE_VALUES = ["true", "True", "TRUE"]
+FALSE_VALUES = ["false", "False", "FALSE"]
+FALSE_EXT_VALUES =  ["n", "N", "no", "No", "NO", "off", "Off", "OFF"]\
+    +FALSE_VALUES
+TRUE_EXT_VALUES = ["y", "Y", "yes", "Yes", "YES", "on", "On", "ON"]\
+    +TRUE_VALUES
 
 # Specific canonical values for particular types - from version 1.2
 
-TAG_NULL_CAN = "null"
-TAG_FALSE_CAN = "false"
-TAG_TRUE_CAN = "true"
+NULL_CAN = "null"
+FALSE_CAN = "false"
+TRUE_CAN = "true"
+INF_CAN = ".inf"
+NINF_CAN = "-.inf"
+NAN_CAN = ".nan"
+
+# And equivalent Python constants
+
+INF_PY = float("inf")
+NINF_PY = float("-inf")
+NAN_PY = float("nan")
+
 

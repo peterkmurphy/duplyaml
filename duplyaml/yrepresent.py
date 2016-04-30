@@ -7,6 +7,7 @@
 
 import numbers
 import base64
+import math
 
 from .yconst import *
 from .ygraph import YAMLNode, YAMLScalarNode, YAMLSeqNode, YAMLMapNode, YAMLGraph
@@ -17,6 +18,28 @@ from .ygraph import YAMLNode, YAMLScalarNode, YAMLSeqNode, YAMLMapNode, YAMLGrap
 
 # Comments on this file:
 # It is possible to overthing this problem.
+
+#        if isinstance(item, numbers.Rational):
+#            return YAMLScalarNode(str(item), TAG_FRACTION)
+#        if isinstance(item, numbers.Complex):
+#            return YAMLScalarNode(str(item), TAG_COMPLEX)
+
+# Types to check
+# None
+# Boolean
+# Int
+# Float
+# Binary
+# Timestamp
+# Timedelta
+# String
+# List
+# Set
+# Map
+
+#(#Omap)
+#(#pairs)
+# Tuple
 
 
 
@@ -40,23 +63,25 @@ class YAMLRepresenter:
 
     def createnode(self, item, theidmap = {}):
         if item is None:
-            return YAMLScalarNode(TAG_NULL_CAN, TAG_NULL)
+            return YAMLScalarNode(NULL_CAN, TAG_NULL)
         if isinstance(item, bool):
             if item == True:
-                return YAMLScalarNode(TAG_TRUE_CAN, TAG_BOOL)
+                return YAMLScalarNode(TRUE_CAN, TAG_BOOL)
             if item == False:
-                return YAMLScalarNode(TAG_FALSE_CAN, TAG_BOOL)
+                return YAMLScalarNode(FALSE_CAN, TAG_BOOL)
         if isinstance(item, basestring):
             return YAMLScalarNode(item, TAG_STR)
         if isinstance(item, numbers.Integral):
             return YAMLScalarNode(str(item), TAG_INT)
-#        if isinstance(item, numbers.Rational):
-#            return YAMLScalarNode(str(item), TAG_FRACTION)
-#        if isinstance(item, numbers.Complex):
-#            return YAMLScalarNode(str(item), TAG_COMPLEX)
-
         if isinstance(item, numbers.Number):
-            return YAMLScalarNode(str(item), TAG_FLOAT)
+            if item == INF_PY:
+                return YAMLScalarNode(INF_CAN, TAG_FLOAT)
+            elif item == NINF_PY:
+                return YAMLScalarNode(NINF_CAN, TAG_FLOAT)
+            elif math.isnan(item):
+                return YAMLScalarNode(NAN_CAN, TAG_FLOAT)
+            else:
+                return YAMLScalarNode(str(item), TAG_FLOAT)
         if isinstance(item, (bytes, bytearray,)):
             return YAMLScalarNode(base64.b64encode(item), TAG_BINARY)
         if item.id in self.idmap:
