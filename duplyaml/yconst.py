@@ -47,6 +47,7 @@ TAG_YAML = "!!yaml" # Keys for encoding YAML in YAML.
 TAG_COMPLEX = "!!complex" # Represents complex numbers of form a+bj
 TAG_FRACTION = "!!fraction" # Represents complex numbers of form a+bj
 TAG_TIMEDELTA = "!!timedelta" # Represents time intervals
+TAG_TUPLE = "!!tuple" # Represents immutable sequences.
 
 # The !!null and the !!bool tags are limited to a certain range of values.
 
