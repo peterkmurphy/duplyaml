@@ -48,6 +48,8 @@ TAG_COMPLEX = "!!complex" # Represents complex numbers of form a+bj
 TAG_FRACTION = "!!fraction" # Represents complex numbers of form a+bj
 TAG_TIMEDELTA = "!!timedelta" # Represents time intervals
 TAG_TUPLE = "!!tuple" # Represents immutable sequences.
+TAG_ELLIPSIS = "!!ellipsis"
+TAG_NOTIMP = "!!notimp"
 
 # The !!null and the !!bool tags are limited to a certain range of values.
 
@@ -70,6 +72,8 @@ TRUE_EXT_VALUES = ["y", "Y", "yes", "Yes", "YES", "on", "On", "ON"]\
 NULL_CAN = "null"
 FALSE_CAN = "false"
 TRUE_CAN = "true"
+ELL_CAN = "Ellipses"
+NOTIMP_CAN = "Not Implemented"
 INF_CAN = ".inf"
 NINF_CAN = "-.inf"
 NAN_CAN = ".nan"

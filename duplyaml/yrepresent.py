@@ -12,6 +12,7 @@ from datetime import datetime, date, time, timedelta
 
 from .yconst import *
 from .ygraph import YAMLNode, YAMLScalarNode, YAMLSeqNode, YAMLMapNode, YAMLGraph
+from .yexcept import *
 
 # Nice hack for Python 2 and 3, based on:
 
@@ -70,6 +71,11 @@ class YAMLRepresenter:
                 return YAMLScalarNode(TRUE_CAN, TAG_BOOL)
             if item == False:
                 return YAMLScalarNode(FALSE_CAN, TAG_BOOL)
+        if item is Ellipsis:
+            return YAMLScalarNode(ELL_CAN, TAG_ELLIPSIS)
+        if item is NotImplemented:
+            return YAMLScalarNode(NOTIMP_CAN, TAG_NOTIMP)
+
         if isinstance(item, basestring):
             return YAMLScalarNode(item, TAG_STR)
         if isinstance(item, numbers.Integral):
@@ -103,16 +109,24 @@ class YAMLRepresenter:
                 ourseqnode = YAMLSeqNode([], TAG_TUPLE)
             for i in item:
                 ourseqnode.addnode(self.createnode(i))
+            self.idmap[item.id] = ourseqnode
             return ourseqnode
         if isinstance(item, dict):
             ourmapnode = YAMLMapNode([],[],TAG_MAP)
             for k,v in item:
-                ourmapnode.addkvpair(self.createnode(k), self.createnode(v))
+                ourmapnode.addkvpair(self.createnode(k),
+                    self.createnode(v))
+            self.idmap[item.id] = ourmapnode
             return ourmapnode
         if isinstance(item, set):
             oursetnode = YAMLMapNode([],[],TAG_SET)
             for i in item:
-                oursetnode.addkvpair(self.createnode(i), YAMLScalarNode(NULL_CAN, TAG_NULL))
+                oursetnode.addkvpair(self.createnode(i),
+                    YAMLScalarNode(NULL_CAN, TAG_NULL))
+            self.idmap[item.id] = oursetnode
             return oursetnode
 
 # Add unresolvable error
+
+        raise YAMLRepresentException("cannot resolve %(item)s as YAML"
+                % {"item": item})

@@ -18,3 +18,6 @@ class YAMLAliasLacksAnchorException(YAMLComposeException):
 
 class YAMLDuplicateAnchorException(YAMLComposeException):
     pass
+
+class YAMLRepresentException(YAMLException):
+    pass
