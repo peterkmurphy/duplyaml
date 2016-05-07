@@ -9,6 +9,7 @@ import numbers
 import base64
 import math
 from datetime import datetime, date, time, timedelta
+from collections import Counter, OrderedDict
 
 from .yconst import *
 from .ygraph import YAMLNode, YAMLScalarNode, YAMLSeqNode, YAMLMapNode, YAMLGraph
@@ -43,7 +44,11 @@ from .yexcept import *
 #(#pairs)
 # Tuple
 
-
+# Make !!python/!!str/!!namespace
+# Support all extra types in search bar
+# Testing. (Leave binary to last)
+# How to treat binary and text
+# Unsafe extension
 
 
 try:
@@ -53,8 +58,18 @@ except NameError:
 
 class YAMLRepresenter:
     """ Makes YAML nodes and graphs out of Python. """
-    def __init__(self):
+    def __init__(self, **kwargs):
         self.idmap = {}
+        self.nulldeflt = kwargs.get("nulldeflt", NULL_CAN)
+        self.falsedeflt = kwargs.get("falsedeflt", FALSE_CAN)
+        self.truedeflt = kwargs.get("truedeflt", TRUE_CAN)
+        self.elldeflt = kwargs.get("elldeflt", ELL_CAN)
+        self.notimpdeflt = kwargs.get("notimpdeflt", NOTIMP_CAN)
+        self.infdeflt = kwargs.get("infdeflt", INF_CAN)
+        self.ninfldeflt = kwargs.get("ninfldeflt", NINF_CAN)
+        self.nandeflt = kwargs.get("nandeflt", NAN_CAN)
+        self.reptuple = kwargs.get("reptuple", True)
+        self.repfrozenset = kwargs.get("repfrozenset", True)
 
     def creategraph(self, graphdata):
         self.idmap = {}
@@ -65,16 +80,16 @@ class YAMLRepresenter:
 
     def createnode(self, item, theidmap = {}):
         if item is None:
-            return YAMLScalarNode(NULL_CAN, TAG_NULL)
+            return YAMLScalarNode(self.nulldeflt, TAG_NULL)
         if isinstance(item, bool):
             if item == True:
-                return YAMLScalarNode(TRUE_CAN, TAG_BOOL)
+                return YAMLScalarNode(self.truedeflt, TAG_BOOL)
             if item == False:
-                return YAMLScalarNode(FALSE_CAN, TAG_BOOL)
+                return YAMLScalarNode(self.falsedeflt, TAG_BOOL)
         if item is Ellipsis:
-            return YAMLScalarNode(ELL_CAN, TAG_ELLIPSIS)
+            return YAMLScalarNode(self.elldeflt, TAG_ELLIPSIS)
         if item is NotImplemented:
-            return YAMLScalarNode(NOTIMP_CAN, TAG_NOTIMP)
+            return YAMLScalarNode(self.notimpdeflt, TAG_NOTIMP)
 
         if isinstance(item, basestring):
             return YAMLScalarNode(item, TAG_STR)
@@ -82,11 +97,11 @@ class YAMLRepresenter:
             return YAMLScalarNode(str(item), TAG_INT)
         if isinstance(item, numbers.Number):
             if item == INF_PY:
-                return YAMLScalarNode(INF_CAN, TAG_FLOAT)
+                return YAMLScalarNode(self.infdeflt, TAG_FLOAT)
             elif item == NINF_PY:
-                return YAMLScalarNode(NINF_CAN, TAG_FLOAT)
+                return YAMLScalarNode(self.ninfldeflt, TAG_FLOAT)
             elif math.isnan(item):
-                return YAMLScalarNode(NAN_CAN, TAG_FLOAT)
+                return YAMLScalarNode(self.nandeflt, TAG_FLOAT)
             else:
                 return YAMLScalarNode(str(item), TAG_FLOAT)
         if isinstance(item, (bytes, bytearray,)):
@@ -102,11 +117,23 @@ class YAMLRepresenter:
 
         if item.id in self.idmap:
             return self.idmap[item.id]
+        if isinstance(item, Counter):
+            ourmapnode = YAMLMapNode([],[],TAG_BAG)
+            for k,v in item:
+                ourmapnode.addkvpair(self.createnode(k),
+                    self.createnode(v))
+            self.idmap[item.id] = ourmapnode
+        if isinstance(item, OrderedDict):
+            ourmapnode = YAMLMapNode([],[],TAG_OMAP)
+            for k,v in item:
+                ourmapnode.addkvpair(self.createnode(k),
+                    self.createnode(v))
+            self.idmap[item.id] = ourmapnode
         if isinstance(item, (list, tuple,)):
-            if isinstance(item, list):
-                ourseqnode = YAMLSeqNode([], TAG_SEQ)
-            else:
+            if isinstance(item, tuple) and self.reptuple:
                 ourseqnode = YAMLSeqNode([], TAG_TUPLE)
+            else:
+                ourseqnode = YAMLSeqNode([], TAG_SEQ)
             for i in item:
                 ourseqnode.addnode(self.createnode(i))
             self.idmap[item.id] = ourseqnode
@@ -118,8 +145,11 @@ class YAMLRepresenter:
                     self.createnode(v))
             self.idmap[item.id] = ourmapnode
             return ourmapnode
-        if isinstance(item, set):
-            oursetnode = YAMLMapNode([],[],TAG_SET)
+        if isinstance(item, (set, frozenset)):
+            if isinstance(item, frozenset) and self.repfrozenset:
+                oursetnode = YAMLMapNode([],[],TAG_FROZENSET)
+            else:
+                oursetnode = YAMLMapNode([],[],TAG_SET)
             for i in item:
                 oursetnode.addkvpair(self.createnode(i),
                     YAMLScalarNode(NULL_CAN, TAG_NULL))
@@ -130,3 +160,6 @@ class YAMLRepresenter:
 
         raise YAMLRepresentException("cannot resolve %(item)s as YAML"
                 % {"item": item})
+
+class YAMLClassRepresenter(YAMLRepresenter):
+    pass
