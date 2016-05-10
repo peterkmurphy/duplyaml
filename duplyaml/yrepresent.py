@@ -51,6 +51,7 @@ from .yexcept import *
 # Unsafe extension
 
 
+
 try:
   basestring
 except NameError:
@@ -70,6 +71,7 @@ class YAMLRepresenter:
         self.nandeflt = kwargs.get("nandeflt", NAN_CAN)
         self.reptuple = kwargs.get("reptuple", True)
         self.repfrozenset = kwargs.get("repfrozenset", True)
+        self.treatstrasbin2 = kwargs.get("treatstrasbin2", False)
 
     def creategraph(self, graphdata):
         self.idmap = {}
@@ -91,8 +93,14 @@ class YAMLRepresenter:
         if item is NotImplemented:
             return YAMLScalarNode(self.notimpdeflt, TAG_NOTIMP)
 
+#       For Python 2
+
+        if self.treatstrasbin2 and PY_VER == 2 and isinstance(item, str):
+            return YAMLScalarNode(base64.b64encode(item), TAG_BINARY)
         if isinstance(item, basestring):
             return YAMLScalarNode(item, TAG_STR)
+        if isinstance(item, (bytes, bytearray,)):
+            return YAMLScalarNode(base64.b64encode(item), TAG_BINARY)
         if isinstance(item, numbers.Integral):
             return YAMLScalarNode(str(item), TAG_INT)
         if isinstance(item, numbers.Number):
@@ -104,8 +112,7 @@ class YAMLRepresenter:
                 return YAMLScalarNode(self.nandeflt, TAG_FLOAT)
             else:
                 return YAMLScalarNode(str(item), TAG_FLOAT)
-        if isinstance(item, (bytes, bytearray,)):
-            return YAMLScalarNode(base64.b64encode(item), TAG_BINARY)
+
         if isinstance(item, datetime):
             pass
         if isinstance(item, date):

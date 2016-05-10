@@ -4,6 +4,12 @@
 # The yconst.py file.
 # Common constants used in YAML.
 
+# First, get the Python version
+
+import sys
+
+PY_VER = sys.version
+
 # These are the constants used to define the Node kinds used with YAML nodes
 
 YAMLNODE_DEF = 0 # Used with the YAMLNode class by default.
