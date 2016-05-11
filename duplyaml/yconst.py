@@ -50,14 +50,16 @@ TAG_YAML = "!!yaml" # Keys for encoding YAML in YAML.
 
 # Extra ones that seems to be of use:
 
-TAG_COMPLEX = "!!complex" # Represents complex numbers of form a+bj
-TAG_FRACTION = "!!fraction" # Represents complex numbers of form a+bj
-TAG_TIMEDELTA = "!!timedelta" # Represents time intervals
-TAG_TUPLE = "!!tuple" # Represents immutable sequences.
-TAG_BAG = "!!bag"
-TAG_ELLIPSIS = "!!ellipsis"
-TAG_NOTIMP = "!!notimp"
-TAG_FROZENSET = "!!frozenset"
+TAG_COMPLEX = "!!python/complex" # Represents complex numbers of form a+bj
+TAG_FRACTION = "!!python/fraction" # Represents complex numbers of form a+bj
+TAG_DATE = "!!python/date"
+TAG_TIME = "!!python/time"
+TAG_TIMEDELTA = "!!python/timedelta" # Represents time intervals
+TAG_TUPLE = "!!python/tuple" # Represents immutable sequences.
+TAG_BAG = "!!python/counter"
+TAG_ELLIPSIS = "!!python/ellipsis"
+TAG_NOTIMP = "!!python/notimp"
+TAG_FROZENSET = "!!python/frozenset"
 
 # The !!null and the !!bool tags are limited to a certain range of values.
 

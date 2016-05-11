@@ -8,7 +8,7 @@
 import numbers
 import base64
 import math
-from datetime import datetime, date, time, timedelta
+from datetime import datetime, date, time, timedelta, tzinfo
 from collections import Counter, OrderedDict
 
 from .yconst import *
@@ -51,7 +51,6 @@ from .yexcept import *
 # Unsafe extension
 
 
-
 try:
   basestring
 except NameError:
@@ -72,6 +71,7 @@ class YAMLRepresenter:
         self.reptuple = kwargs.get("reptuple", True)
         self.repfrozenset = kwargs.get("repfrozenset", True)
         self.treatstrasbin2 = kwargs.get("treatstrasbin2", False)
+        self.treatdateasdatetime = kwargs.get("treatdateasdatetime", False)
 
     def creategraph(self, graphdata):
         self.idmap = {}
@@ -114,14 +114,24 @@ class YAMLRepresenter:
                 return YAMLScalarNode(str(item), TAG_FLOAT)
 
         if isinstance(item, datetime):
-            pass
+            return YAMLScalarNode(item.isoformat(), TAG_TIMESTAMP)
         if isinstance(item, date):
-            pass
+            if self.treatdateasdatetime:
+                return YAMLScalarNode(item.strftime("%Y-%m-%d")+"T00:00:00",
+                    TAG_TIMESTAMP)
+            else:
+                return YAMLScalarNode(item.strftime("%Y-%m-%d"), TAG_DATE)
         if isinstance(item, time):
-            pass
+            return YAMLScalarNode(item.isoformat(), TAG_TIME)
         if isinstance(item, timedelta):
-            pass
-
+            seconds = item.seconds
+            minutes, seconds = divmod(seconds, 60)
+            hours, minutes = divmod(minutes, 60)
+            microseconds = item.microseconds
+            return YAMLScalarNode(
+                'P%(days)iT%(hours)iH%(mins)iM%(secs)i.%(micro)iS' %
+                {"days": item.days, "hours": hours, "mins": minutes,
+                "secs": seconds, "micro": microseconds}, TAG_TIMEDELTA)
         if item.id in self.idmap:
             return self.idmap[item.id]
         if isinstance(item, Counter):

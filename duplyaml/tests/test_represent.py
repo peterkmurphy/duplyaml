@@ -14,8 +14,8 @@ testscalars += [0, 0.0, NAN_PY, INF_PY, NINF_PY]
 testresults = [YAMLScalarNode(NULL_CAN, "!!null"),
     YAMLScalarNode(FALSE_CAN, "!!bool"),
     YAMLScalarNode(TRUE_CAN, "!!bool"),
-    YAMLScalarNode("Ellipses", "!!ellipsis"),
-    YAMLScalarNode("Not Implemented", "!!notimp")]
+    YAMLScalarNode("Ellipses", "!!python/ellipsis"),
+    YAMLScalarNode("Not Implemented", "!!python/notimp")]
 
 testresults += [YAMLScalarNode("0", "!!int"),
     YAMLScalarNode("0.0", "!!float"),
