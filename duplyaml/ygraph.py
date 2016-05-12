@@ -130,12 +130,14 @@ class YAMLSeqNode(YAMLNode):
         YAMLNode.__init__(self, tag, graph, YAMLNODE_SEQ, startpos, endpos)
         self.nodeseq = nodeseq
 
-    def addnode(self, node):
+    def addnode(self, node, setgraph=False):
         """ Add a new node to the sequence.
         :param node: The node to be added.
+        :param setgraph: Whether to set the child's graph from the parent.
         """
         self.nodeseq.append(node)
-        node.graph = self.graph
+        if setgraph:
+            node.graph = self.graph
 
     def checkeq(self, other, dchecks):
         idtuple = (id(self), id(other),)
@@ -172,24 +174,27 @@ class YAMLMapNode(YAMLNode):
         self.valseq = valseq
         self.status = YAMLMAP_STATUS_KEYREADY
 
-    def addkvpair(self, nodekey, nodeval):
+    def addkvpair(self, nodekey, nodeval, setgraph=False):
         """ Add a new node to the sequence.
         :param nodekey: The key to be added.
         :param nodeval: The value to be added.
+        :param setgraph: Whether to set the children's graph from the parent.
         """
         self.keyseq.append(nodekey)
-        nodekey.graph = self.graph
         self.valseq.append(nodeval)
-        nodeval.graph = self.graph
+        if setgraph:
+            nodekey.graph = self.graph
+            nodeval.graph = self.graph
 
-    def addnode(self, node):
+    def addnode(self, node, setgraph=False):
         if self.status == YAMLMAP_STATUS_KEYREADY:
             self.keyseq.append(node)
             self.status = YAMLMAP_STATUS_VALREADY
         else:
             self.valseq.append(node)
             self.status = YAMLMAP_STATUS_KEYREADY
-        node.graph = self.graph
+        if setgraph:
+            node.graph = self.graph
 
     def checkeq(self, other, dchecks):
         idtuple = (id(self), id(other),)

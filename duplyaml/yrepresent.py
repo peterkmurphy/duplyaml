@@ -15,40 +15,17 @@ from .yconst import *
 from .ygraph import YAMLNode, YAMLScalarNode, YAMLSeqNode, YAMLMapNode, YAMLGraph
 from .yexcept import *
 
-# Nice hack for Python 2 and 3, based on:
 
-# http://stackoverflow.com/questions/11301138/how-to-check-if-variable-is-string-with-python-2-and-3-compatibility
-
-# Comments on this file:
-# It is possible to overthing this problem.
-
-#        if isinstance(item, numbers.Rational):
-#            return YAMLScalarNode(str(item), TAG_FRACTION)
-#        if isinstance(item, numbers.Complex):
-#            return YAMLScalarNode(str(item), TAG_COMPLEX)
-
-# Types to check
-# None
-# Boolean
-# Int
-# Float
-# Binary
-# Timestamp
-# Timedelta
-# String
-# List
-# Set
-# Map
-
-#(#Omap)
-#(#pairs)
-# Tuple
-
-# Make !!python/!!str/!!namespace
-# Support all extra types in search bar
+# To be done
+# Make !!python/!!str/!!namespace - NY
+# Support all extra types in search bar - everything except pairs
 # Testing. (Leave binary to last)
-# How to treat binary and text
+# How to treat binary and text - to be tested
 # Unsafe extension
+# Make sure the graph works - to be tested
+
+# Nice hack for Python 2 and 3, based on:
+# http://stackoverflow.com/questions/11301138/how-to-check-if-variable-is-string-with-python-2-and-3-compatibility
 
 
 try:
@@ -60,6 +37,7 @@ class YAMLRepresenter:
     """ Makes YAML nodes and graphs out of Python. """
     def __init__(self, **kwargs):
         self.idmap = {}
+        self.graphout = None
         self.nulldeflt = kwargs.get("nulldeflt", NULL_CAN)
         self.falsedeflt = kwargs.get("falsedeflt", FALSE_CAN)
         self.truedeflt = kwargs.get("truedeflt", TRUE_CAN)
@@ -75,54 +53,66 @@ class YAMLRepresenter:
 
     def creategraph(self, graphdata):
         self.idmap = {}
-        graphout = YAMLGraph(self)
+        self.graphout = YAMLGraph(self)
         for item in graphdata:
-            graphout.add_doc(self.createnode(item), self.idmap)
-        return graphout
+            self.graphout.add_doc(self.createnode(item), self.idmap)
+        return self.graphout
+
+    def genscalarnode(self, value, tag):
+        return YAMLScalarNode(value, tag, self.graphout)
+
+    def genemptyseq(self, tag):
+        return YAMLSeqNode([], tag, self.graphout)
+
+    def genemptymap(self, tag):
+        return YAMLMapNode([],[], tag, self.graphout)
 
     def createnode(self, item, theidmap = {}):
         if item is None:
-            return YAMLScalarNode(self.nulldeflt, TAG_NULL)
+            return self.genscalarnode(self.nulldeflt, TAG_NULL)
         if isinstance(item, bool):
             if item == True:
-                return YAMLScalarNode(self.truedeflt, TAG_BOOL)
+                return self.genscalarnode(self.truedeflt, TAG_BOOL)
             if item == False:
-                return YAMLScalarNode(self.falsedeflt, TAG_BOOL)
+                return self.genscalarnode(self.falsedeflt, TAG_BOOL)
         if item is Ellipsis:
-            return YAMLScalarNode(self.elldeflt, TAG_ELLIPSIS)
+            return self.genscalarnode(self.elldeflt, TAG_ELLIPSIS)
         if item is NotImplemented:
-            return YAMLScalarNode(self.notimpdeflt, TAG_NOTIMP)
+            return self.genscalarnode(self.notimpdeflt, TAG_NOTIMP)
 
 #       For Python 2
 
         if self.treatstrasbin2 and PY_VER == 2 and isinstance(item, str):
-            return YAMLScalarNode(base64.b64encode(item), TAG_BINARY)
+            return self.genscalarnode(base64.b64encode(item), TAG_BINARY)
         if isinstance(item, basestring):
-            return YAMLScalarNode(item, TAG_STR)
+            return self.genscalarnode(item, TAG_STR)
         if isinstance(item, (bytes, bytearray,)):
-            return YAMLScalarNode(base64.b64encode(item), TAG_BINARY)
+            return self.genscalarnode(base64.b64encode(item), TAG_BINARY)
         if isinstance(item, numbers.Integral):
-            return YAMLScalarNode(str(item), TAG_INT)
-        if isinstance(item, numbers.Number):
+            return self.genscalarnode(str(item), TAG_INT)
+        if isinstance(item, numbers.Rational):
+            return self.genscalarnode(str(item), TAG_FRACTION)
+        if isinstance(item, numbers.Real):
             if item == INF_PY:
-                return YAMLScalarNode(self.infdeflt, TAG_FLOAT)
+                return self.genscalarnode(self.infdeflt, TAG_FLOAT)
             elif item == NINF_PY:
-                return YAMLScalarNode(self.ninfldeflt, TAG_FLOAT)
+                return self.genscalarnode(self.ninfldeflt, TAG_FLOAT)
             elif math.isnan(item):
-                return YAMLScalarNode(self.nandeflt, TAG_FLOAT)
+                return self.genscalarnode(self.nandeflt, TAG_FLOAT)
             else:
-                return YAMLScalarNode(str(item), TAG_FLOAT)
-
+                return self.genscalarnode(str(item), TAG_FLOAT)
+        if isinstance(item, numbers.Complex):
+            return self.genscalarnode(str(item), TAG_COMPLEX)
         if isinstance(item, datetime):
-            return YAMLScalarNode(item.isoformat(), TAG_TIMESTAMP)
+            return self.genscalarnode(item.isoformat(), TAG_TIMESTAMP)
         if isinstance(item, date):
             if self.treatdateasdatetime:
-                return YAMLScalarNode(item.strftime("%Y-%m-%d")+"T00:00:00",
+                return self.genscalarnode(item.strftime("%Y-%m-%d")+"T00:00:00",
                     TAG_TIMESTAMP)
             else:
-                return YAMLScalarNode(item.strftime("%Y-%m-%d"), TAG_DATE)
+                return self.genscalarnode(item.strftime("%Y-%m-%d"), TAG_DATE)
         if isinstance(item, time):
-            return YAMLScalarNode(item.isoformat(), TAG_TIME)
+            return self.genscalarnode(item.isoformat(), TAG_TIME)
         if isinstance(item, timedelta):
             seconds = item.seconds
             minutes, seconds = divmod(seconds, 60)
@@ -135,28 +125,28 @@ class YAMLRepresenter:
         if item.id in self.idmap:
             return self.idmap[item.id]
         if isinstance(item, Counter):
-            ourmapnode = YAMLMapNode([],[],TAG_BAG)
+            ourmapnode = self.genemptymap(TAG_BAG)
             for k,v in item:
                 ourmapnode.addkvpair(self.createnode(k),
                     self.createnode(v))
             self.idmap[item.id] = ourmapnode
         if isinstance(item, OrderedDict):
-            ourmapnode = YAMLMapNode([],[],TAG_OMAP)
+            ourmapnode = self.genemptymap(TAG_OMAP)
             for k,v in item:
                 ourmapnode.addkvpair(self.createnode(k),
                     self.createnode(v))
             self.idmap[item.id] = ourmapnode
         if isinstance(item, (list, tuple,)):
             if isinstance(item, tuple) and self.reptuple:
-                ourseqnode = YAMLSeqNode([], TAG_TUPLE)
+                ourseqnode = self.genemptyseq(TAG_TUPLE)
             else:
-                ourseqnode = YAMLSeqNode([], TAG_SEQ)
+                ourseqnode = self.genemptyseq(TAG_SEQ)
             for i in item:
                 ourseqnode.addnode(self.createnode(i))
             self.idmap[item.id] = ourseqnode
             return ourseqnode
         if isinstance(item, dict):
-            ourmapnode = YAMLMapNode([],[],TAG_MAP)
+            ourmapnode = self.genemptymap(TAG_MAP)
             for k,v in item:
                 ourmapnode.addkvpair(self.createnode(k),
                     self.createnode(v))
@@ -164,9 +154,9 @@ class YAMLRepresenter:
             return ourmapnode
         if isinstance(item, (set, frozenset)):
             if isinstance(item, frozenset) and self.repfrozenset:
-                oursetnode = YAMLMapNode([],[],TAG_FROZENSET)
+                oursetnode = self.genemptymap(TAG_FROZENSET)
             else:
-                oursetnode = YAMLMapNode([],[],TAG_SET)
+                oursetnode = self.genemptymap(TAG_SET)
             for i in item:
                 oursetnode.addkvpair(self.createnode(i),
                     YAMLScalarNode(NULL_CAN, TAG_NULL))
