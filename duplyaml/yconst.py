@@ -52,6 +52,7 @@ TAG_YAML = "!!yaml" # Keys for encoding YAML in YAML.
 
 TAG_COMPLEX = "!!python/complex" # Represents complex numbers of form a+bj
 TAG_FRACTION = "!!python/fraction" # Represents complex numbers of form a+bj
+TAG_DECIMAL = "!!python/decimal" # Represents decimals
 TAG_DATE = "!!python/date"
 TAG_TIME = "!!python/time"
 TAG_TIMEDELTA = "!!python/timedelta" # Represents time intervals

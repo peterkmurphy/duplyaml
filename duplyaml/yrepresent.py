@@ -8,6 +8,7 @@
 import numbers
 import base64
 import math
+import decimal
 from datetime import datetime, date, time, timedelta, tzinfo
 from collections import Counter, OrderedDict
 
@@ -102,6 +103,8 @@ class YAMLRepresenter:
             return self.genscalarnode(item, TAG_STR)
         if isinstance(item, (bytes, bytearray,)):
             return self.genscalarnode(base64.b64encode(item), TAG_BINARY)
+        if isinstance(item, decimal.Decimal):
+            return self.genscalarnode(str(item), TAG_DECIMAL)
         if isinstance(item, numbers.Integral):
             return self.genscalarnode(str(item), TAG_INT)
         if isinstance(item, numbers.Rational):
