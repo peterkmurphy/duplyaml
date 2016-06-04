@@ -82,7 +82,8 @@ class YAMLRepresenter:
 
 
     def createnode(self, item, theidmap = {}):
-
+        if id(item) in self.idmap:
+            return self.idmap[id(item)]
         if item is None:
             return self.genscalarnode(self.nulldeflt, TAG_NULL)
         if isinstance(item, bool):
@@ -139,45 +140,47 @@ class YAMLRepresenter:
                 'P%(days)iT%(hours)iH%(mins)iM%(secs)i.%(micro)iS' %
                 {"days": item.days, "hours": hours, "mins": minutes,
                 "secs": seconds, "micro": microseconds}, TAG_TIMEDELTA)
-        if item.id in self.idmap:
-            return self.idmap[item.id]
+        if id(item) in self.idmap:
+            return self.idmap[id(item)]
         if isinstance(item, Counter):
             ourmapnode = self.genemptymap(TAG_BAG)
             for k,v in item:
                 ourmapnode.addkvpair(self.createnode(k),
                     self.createnode(v))
-            self.idmap[item.id] = ourmapnode
+            self.idmap[id(item)] = ourmapnode
+            return ourmapnode
         if isinstance(item, OrderedDict):
             ourmapnode = self.genemptymap(TAG_OMAP)
             for k,v in item:
                 ourmapnode.addkvpair(self.createnode(k),
                     self.createnode(v))
-            self.idmap[item.id] = ourmapnode
+            self.idmap[id(item)] = ourmapnode
+            return ourmapnode
         if isinstance(item, (list, tuple,)):
             if isinstance(item, tuple) and self.reptuple:
-                ourseqnode = self.genemptyseq(TAG_TUPLE)
+                ourseqnode = self.genemptyseq(TAG_TUPLE, False)
             else:
                 ourseqnode = self.genemptyseq(TAG_SEQ)
             for i in item:
                 ourseqnode.addnode(self.createnode(i))
-            self.idmap[item.id] = ourseqnode
+            self.idmap[id(item)] = ourseqnode
             return ourseqnode
         if isinstance(item, dict):
             ourmapnode = self.genemptymap(TAG_MAP)
             for k,v in item:
                 ourmapnode.addkvpair(self.createnode(k),
                     self.createnode(v))
-            self.idmap[item.id] = ourmapnode
+            self.idmap[id(item)] = ourmapnode
             return ourmapnode
         if isinstance(item, (set, frozenset)):
             if isinstance(item, frozenset) and self.repfrozenset:
-                oursetnode = self.genemptymap(TAG_FROZENSET)
+                oursetnode = self.genemptymap(TAG_FROZENSET, False)
             else:
                 oursetnode = self.genemptymap(TAG_SET)
             for i in item:
                 oursetnode.addkvpair(self.createnode(i),
                     YAMLScalarNode(NULL_CAN, TAG_NULL))
-            self.idmap[item.id] = oursetnode
+            self.idmap[id(item)] = oursetnode
             return oursetnode
 
 

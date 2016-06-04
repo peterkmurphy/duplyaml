@@ -7,12 +7,6 @@ from duplyaml.tests import buildseqstrings, UNICODE_PLAT_CHARS
 import fractions
 import decimal
 
-
-for i in range(-20, 21):
-    for j in range(1, 9):
-        print fractions.Fraction(i, j)
-
-
 # We are going to test two representers - one with the defaults, and one
 # with a lot of alternative settings.
 
@@ -26,8 +20,8 @@ yrepresent_alt = YAMLRepresenter(represent_lity_full = YAML_NAME_PREFIX,
 # We are testing the "canonical" representation of scalars. We start by tesing
 # built in values like NotImplemented, Ellipses, and Nulls and Booleans.
 
-buildinvalues_def = [None, False, True, Ellipsis, NotImplemented, NAN_PY,
-    INF_PY, NINF_PY]
+buildinvalues_def = (None, False, True, Ellipsis, NotImplemented, NAN_PY,
+    INF_PY, NINF_PY,)
 
 buildinvalues_res = [YAMLScalarNode(NULL_CAN, "!!null"),
     YAMLScalarNode(FALSE_CAN, "!!bool"),
@@ -164,3 +158,10 @@ class TestRepresent(TestCase):
         for stritem in ourunicodecombo:
             self.assertEqual(yrepresent_alt.createnode(stritem),
                 YAMLScalarNode(stritem, "tag:yaml.org,2002:str"))
+
+    def test_list_represents(self):
+        self.assertEqual(yrepresent_def.createnode(buildinvalues_def),
+              YAMLSeqNode(buildinvalues_res, "!!seq"))
+        self.assertEqual(yrepresent_alt.createnode(buildinvalues_def),
+              YAMLSeqNode(buildinvalues_alt, "!!python/tuple"))
+       # print YAMLSeqNode([], "!!python/tuple")

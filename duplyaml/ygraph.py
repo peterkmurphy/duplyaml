@@ -158,8 +158,9 @@ class YAMLSeqNode(YAMLNode):
         dchecks[idtuple] = True
         return True
 
-    def __repr__(self):
-        return "%s(%r)" % (self.__class__, dict(self.__dict__).pop("nodeseq"))
+ #   def __repr__(self):
+   #     print dict(self.__dict__)
+   #     return "%s(%r)" % (self.__class__, {"nodeseq".selfself.__dict__)
 
 
 class YAMLMapNode(YAMLNode):
@@ -219,7 +220,9 @@ class YAMLMapNode(YAMLNode):
         dchecks[idtuple] = True
         return True
 
-    def __repr__(self):
-        return "%s(%r)" % (self.__class__,
-                {key: self.__dict__[key] for key in
-                self.__dict__ if key not in ["keyseq", "valueseq"]})
+ #   def __repr__(self):
+    #    return "%s(%r)" % (self.__class__,
+    #            {key: self.__dict__[key] for key in
+    #            self.__dict__ if key not in ["keyseq", "valueseq"]})
+
+#print YAMLSeqNode(["a"], "test")

@@ -14,9 +14,9 @@ import os
 # This builds a binary sequence of bytes
 
 ALL_BYTES = bytes([i for i in range(256)])
-print ALL_BYTES
-print len(ALL_BYTES)
-print isinstance(ALL_BYTES, bytes)
+#print ALL_BYTES
+#print len(ALL_BYTES)
+#print isinstance(ALL_BYTES, bytes)
 
 # This gets a list of all Unicode character on the current platform
 
