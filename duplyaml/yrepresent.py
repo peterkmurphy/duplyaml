@@ -79,7 +79,37 @@ class YAMLRepresenter:
         else:
             return tag
 
+    def createseqnode(self, item, theidmap = {}):
+        if isinstance(item, tuple) and self.reptuple:
+            ourseqnode = self.genemptyseq(TAG_TUPLE, False)
+        else:
+            ourseqnode = self.genemptyseq(TAG_SEQ)
+        for i in item:
+            ourseqnode.addnode(self.createnode(i))
+        self.idmap[id(item)] = ourseqnode
+        return ourseqnode
 
+    def createmapnode(self, item, theidmap = {}):
+        if isinstance(item, Counter):
+            ourmapnode = self.genemptymap(TAG_BAG)
+        elif isinstance(item, OrderedDict):
+            ourmapnode = self.genemptymap(TAG_OMAP)
+        elif isinstance(item, dict):
+            ourmapnode = self.genemptymap(TAG_MAP)
+        elif isinstance(item, frozenset) and self.repfrozenset:
+            ourmapnode = self.genemptymap(TAG_FROZENSET, False)
+        else: # A bare set
+            ourmapnode = self.genemptymap(TAG_SET)
+        if isinstance(item, (set, frozenset)):
+            for i in item:
+                ourmapnode.addkvpair(self.createnode(i),
+                     YAMLScalarNode(NULL_CAN, TAG_NULL))
+        else:
+            for k, v in item:
+                ourmapnode.addkvpair(self.createnode(k),
+                    self.createnode(v))
+        self.idmap[id(item)] = ourmapnode
+        return ourmapnode
 
     def createnode(self, item, theidmap = {}):
         if id(item) in self.idmap:
@@ -140,54 +170,20 @@ class YAMLRepresenter:
                 'P%(days)iT%(hours)iH%(mins)iM%(secs)i.%(micro)iS' %
                 {"days": item.days, "hours": hours, "mins": minutes,
                 "secs": seconds, "micro": microseconds}, TAG_TIMEDELTA)
-        if id(item) in self.idmap:
-            return self.idmap[id(item)]
-        if isinstance(item, Counter):
-            ourmapnode = self.genemptymap(TAG_BAG)
-            for k,v in item:
-                ourmapnode.addkvpair(self.createnode(k),
-                    self.createnode(v))
-            self.idmap[id(item)] = ourmapnode
-            return ourmapnode
-        if isinstance(item, OrderedDict):
-            ourmapnode = self.genemptymap(TAG_OMAP)
-            for k,v in item:
-                ourmapnode.addkvpair(self.createnode(k),
-                    self.createnode(v))
-            self.idmap[id(item)] = ourmapnode
-            return ourmapnode
-        if isinstance(item, (list, tuple,)):
-            if isinstance(item, tuple) and self.reptuple:
-                ourseqnode = self.genemptyseq(TAG_TUPLE, False)
-            else:
-                ourseqnode = self.genemptyseq(TAG_SEQ)
-            for i in item:
-                ourseqnode.addnode(self.createnode(i))
-            self.idmap[id(item)] = ourseqnode
-            return ourseqnode
-        if isinstance(item, dict):
-            ourmapnode = self.genemptymap(TAG_MAP)
-            for k,v in item:
-                ourmapnode.addkvpair(self.createnode(k),
-                    self.createnode(v))
-            self.idmap[id(item)] = ourmapnode
-            return ourmapnode
-        if isinstance(item, (set, frozenset)):
-            if isinstance(item, frozenset) and self.repfrozenset:
-                oursetnode = self.genemptymap(TAG_FROZENSET, False)
-            else:
-                oursetnode = self.genemptymap(TAG_SET)
-            for i in item:
-                oursetnode.addkvpair(self.createnode(i),
-                    YAMLScalarNode(NULL_CAN, TAG_NULL))
-            self.idmap[id(item)] = oursetnode
-            return oursetnode
 
+        if isinstance(item, (list, tuple,)):
+            return self.createseqnode(item, theidmap)
+
+        if isinstance(item, (Counter, OrderedDict, dict, set, frozenset)):
+            return self.createmapnode(item, theidmap)
 
 # Add unresolvable error
 
         raise YAMLRepresentException("cannot resolve %(item)s as YAML"
                 % {"item": item})
+
+
+
 
 class YAMLClassRepresenter(YAMLRepresenter):
     pass
