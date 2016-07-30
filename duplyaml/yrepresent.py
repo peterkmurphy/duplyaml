@@ -16,6 +16,10 @@ from .yconst import *
 from .ygraph import YAMLNode, YAMLScalarNode, YAMLSeqNode, YAMLMapNode, YAMLGraph
 from .yexcept import *
 
+# To be done
+# (A) - Decompose YAMLRepresenter into strings / bin/ numbers / datetime
+# (B) - Test all (leave binary to last)
+# (C) - Unsafe extension
 
 # To be done
 # Make !!python/!!str/!!namespace - NY
@@ -25,7 +29,6 @@ from .yexcept import *
 # Unsafe extension
 # Make sure the graph works - to be tested
 # Integers - Different cases
-# Decomposition
 # Map equality
 
 # Nice hack for Python 2 and 3, based on:
@@ -79,6 +82,55 @@ class YAMLRepresenter:
         else:
             return tag
 
+    def createstrorbinnode(self, item, theidmap = {}):
+        if self.treatstrasbin2 and PY_VER == 2 and isinstance(item, str):
+            return self.genscalarnode(base64.b64encode(item), TAG_BINARY)
+        if isinstance(item, basestring):
+            return self.genscalarnode(item, TAG_STR)
+        if isinstance(item, (bytes, bytearray,)):
+            return self.genscalarnode(base64.b64encode(item), TAG_BINARY)
+
+    def createnumericalnode(self, item, theidmap = {}):
+        if isinstance(item, decimal.Decimal):
+            return self.genscalarnode(str(item), TAG_DECIMAL)
+        if isinstance(item, numbers.Integral):
+            return self.genscalarnode(str(item), TAG_INT)
+        if isinstance(item, numbers.Rational):
+            return self.genscalarnode(str(item), TAG_FRACTION, False)
+        if isinstance(item, numbers.Real):
+            if item == INF_PY:
+                return self.genscalarnode(self.infdeflt, TAG_FLOAT)
+            elif item == NINF_PY:
+                return self.genscalarnode(self.ninfldeflt, TAG_FLOAT)
+            elif math.isnan(item):
+                return self.genscalarnode(self.nandeflt, TAG_FLOAT)
+            else:
+                return self.genscalarnode(str(item), TAG_FLOAT)
+        if isinstance(item, numbers.Complex):
+            return self.genscalarnode(str(item), TAG_COMPLEX, False)
+
+
+    def createtemporalnode(self, item, theidmap = {}):
+        if isinstance(item, datetime):
+            return self.genscalarnode(item.isoformat(), TAG_TIMESTAMP)
+        if isinstance(item, date):
+            if self.treatdateasdatetime:
+                return self.genscalarnode(item.strftime("%Y-%m-%d")+"T00:00:00",
+                    TAG_TIMESTAMP)
+            else:
+                return self.genscalarnode(item.strftime("%Y-%m-%d"), TAG_DATE)
+        if isinstance(item, time):
+            return self.genscalarnode(item.isoformat(), TAG_TIME)
+        if isinstance(item, timedelta):
+            seconds = item.seconds
+            minutes, seconds = divmod(seconds, 60)
+            hours, minutes = divmod(minutes, 60)
+            microseconds = item.microseconds
+            return YAMLScalarNode(
+                'P%(days)iT%(hours)iH%(mins)iM%(secs)i.%(micro)iS' %
+                {"days": item.days, "hours": hours, "mins": minutes,
+                "secs": seconds, "micro": microseconds}, TAG_TIMEDELTA)
+
     def createseqnode(self, item, theidmap = {}):
         if isinstance(item, tuple) and self.reptuple:
             ourseqnode = self.genemptyseq(TAG_TUPLE, False)
@@ -126,50 +178,14 @@ class YAMLRepresenter:
         if item is NotImplemented:
             return self.genscalarnode(self.notimpdeflt, TAG_NOTIMP, False)
 
-#       For Python 2
+        if isinstance(item, (bytes, bytearray, basestring)):
+            return self.createstrorbinnode(item, theidmap)
 
-        if self.treatstrasbin2 and PY_VER == 2 and isinstance(item, str):
-            return self.genscalarnode(base64.b64encode(item), TAG_BINARY)
-        if isinstance(item, basestring):
-            return self.genscalarnode(item, TAG_STR)
-        if isinstance(item, (bytes, bytearray,)):
-            return self.genscalarnode(base64.b64encode(item), TAG_BINARY)
-        if isinstance(item, decimal.Decimal):
-            return self.genscalarnode(str(item), TAG_DECIMAL)
-        if isinstance(item, numbers.Integral):
-            return self.genscalarnode(str(item), TAG_INT)
-        if isinstance(item, numbers.Rational):
-            return self.genscalarnode(str(item), TAG_FRACTION, False)
-        if isinstance(item, numbers.Real):
-            if item == INF_PY:
-                return self.genscalarnode(self.infdeflt, TAG_FLOAT)
-            elif item == NINF_PY:
-                return self.genscalarnode(self.ninfldeflt, TAG_FLOAT)
-            elif math.isnan(item):
-                return self.genscalarnode(self.nandeflt, TAG_FLOAT)
-            else:
-                return self.genscalarnode(str(item), TAG_FLOAT)
-        if isinstance(item, numbers.Complex):
-            return self.genscalarnode(str(item), TAG_COMPLEX, False)
-        if isinstance(item, datetime):
-            return self.genscalarnode(item.isoformat(), TAG_TIMESTAMP)
-        if isinstance(item, date):
-            if self.treatdateasdatetime:
-                return self.genscalarnode(item.strftime("%Y-%m-%d")+"T00:00:00",
-                    TAG_TIMESTAMP)
-            else:
-                return self.genscalarnode(item.strftime("%Y-%m-%d"), TAG_DATE)
-        if isinstance(item, time):
-            return self.genscalarnode(item.isoformat(), TAG_TIME)
-        if isinstance(item, timedelta):
-            seconds = item.seconds
-            minutes, seconds = divmod(seconds, 60)
-            hours, minutes = divmod(minutes, 60)
-            microseconds = item.microseconds
-            return YAMLScalarNode(
-                'P%(days)iT%(hours)iH%(mins)iM%(secs)i.%(micro)iS' %
-                {"days": item.days, "hours": hours, "mins": minutes,
-                "secs": seconds, "micro": microseconds}, TAG_TIMEDELTA)
+        if isinstance(item, (decimal.Decimal, numbers.Number,)):
+            return self.createnumericalnode(item, theidmap)
+
+        if isinstance(item, (datetime, date, time, timedelta)):
+            return self.createtemporalnode(item, theidmap)
 
         if isinstance(item, (list, tuple,)):
             return self.createseqnode(item, theidmap)

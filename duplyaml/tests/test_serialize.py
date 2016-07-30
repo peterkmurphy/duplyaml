@@ -30,7 +30,7 @@ import StringIO
 
 YAdumpit = YAMLSerializer(ygapher,YAMLDump(StringIO.StringIO()))
 YAdumpit.serializestream()
-print YAdumpit.yamleventer.yamlfile.getvalue()
+
 
 class TestSerialise(TestCase):
     def test_serialisation(self):
