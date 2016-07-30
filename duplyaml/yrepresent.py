@@ -17,7 +17,7 @@ from .ygraph import YAMLNode, YAMLScalarNode, YAMLSeqNode, YAMLMapNode, YAMLGrap
 from .yexcept import *
 
 # To be done
-# (A) - Decompose YAMLRepresenter into strings / bin/ numbers / datetime
+# (A) - Decompose YAMLRepresenter into strings / bin/ numbers / datetime [Tick]
 # (B) - Test all (leave binary to last)
 # (C) - Unsafe extension
 
@@ -81,6 +81,19 @@ class YAMLRepresenter:
             return self.represent_lity_pref + tag[2:]
         else:
             return tag
+
+    def createsimplenode(self, item, theidmap = {}):
+        if item is None:
+            return self.genscalarnode(self.nulldeflt, TAG_NULL)
+        if isinstance(item, bool):
+            if item == True:
+                return self.genscalarnode(self.truedeflt, TAG_BOOL)
+            if item == False:
+                return self.genscalarnode(self.falsedeflt, TAG_BOOL)
+        if item is Ellipsis:
+            return self.genscalarnode(self.elldeflt, TAG_ELLIPSIS, False)
+        if item is NotImplemented:
+            return self.genscalarnode(self.notimpdeflt, TAG_NOTIMP, False)
 
     def createstrorbinnode(self, item, theidmap = {}):
         if self.treatstrasbin2 and PY_VER == 2 and isinstance(item, str):
@@ -166,17 +179,8 @@ class YAMLRepresenter:
     def createnode(self, item, theidmap = {}):
         if id(item) in self.idmap:
             return self.idmap[id(item)]
-        if item is None:
-            return self.genscalarnode(self.nulldeflt, TAG_NULL)
-        if isinstance(item, bool):
-            if item == True:
-                return self.genscalarnode(self.truedeflt, TAG_BOOL)
-            if item == False:
-                return self.genscalarnode(self.falsedeflt, TAG_BOOL)
-        if item is Ellipsis:
-            return self.genscalarnode(self.elldeflt, TAG_ELLIPSIS, False)
-        if item is NotImplemented:
-            return self.genscalarnode(self.notimpdeflt, TAG_NOTIMP, False)
+        if item in [None, Ellipsis, NotImplemented] or isinstance(item, bool):
+            return self.createsimplenode(item, theidmap)
 
         if isinstance(item, (bytes, bytearray, basestring)):
             return self.createstrorbinnode(item, theidmap)
