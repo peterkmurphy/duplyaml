@@ -125,21 +125,31 @@ class YAMLRepresenter:
 
     def createtemporalnode(self, item, theidmap = {}):
         if isinstance(item, datetime):
-            return self.genscalarnode(item.isoformat(), TAG_TIMESTAMP)
+            if (item.tzinfo is None):
+                return self.genscalarnode(item.isoformat() + "Z", TAG_TIMESTAMP)
+            elif (item.tzinfo.utcoffset(None) == timedelta(0)):
+                return self.genscalarnode(item.isoformat()[:-6] + "Z", TAG_TIMESTAMP)
+            else:
+                return self.genscalarnode(item.isoformat(), TAG_TIMESTAMP)
         if isinstance(item, date):
             if self.treatdateasdatetime:
-                return self.genscalarnode(item.strftime("%Y-%m-%d")+"T00:00:00",
+                return self.genscalarnode(item.strftime("%Y-%m-%d")+"T00:00:00Z",
                     TAG_TIMESTAMP)
             else:
                 return self.genscalarnode(item.strftime("%Y-%m-%d"), TAG_DATE)
         if isinstance(item, time):
-            return self.genscalarnode(item.isoformat(), TAG_TIME)
+            if (item.tzinfo is None):
+                return self.genscalarnode(item.isoformat() + "Z", TAG_TIME)
+            elif (item.tzinfo.utcoffset(None) == timedelta(0)):
+                return self.genscalarnode(item.isoformat()[:-6] + "Z", TAG_TIME)
+            else:
+                return self.genscalarnode(item.isoformat(), TAG_TIME)
         if isinstance(item, timedelta):
             seconds = item.seconds
             minutes, seconds = divmod(seconds, 60)
             hours, minutes = divmod(minutes, 60)
             microseconds = item.microseconds
-            return YAMLScalarNode(
+            return self.genscalarnode(
                 'P%(days)iT%(hours)iH%(mins)iM%(secs)i.%(micro)iS' %
                 {"days": item.days, "hours": hours, "mins": minutes,
                 "secs": seconds, "micro": microseconds}, TAG_TIMEDELTA)
